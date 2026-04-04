@@ -1,0 +1,176 @@
+package com.expenseai.ai
+
+import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
+
+data class ParsedReceipt(
+    val vendor: String = "",
+    val amount: Double = 0.0,
+    val date: String = "",
+    val category: String = "other",
+    val items: List<String> = emptyList()
+)
+
+@Singleton
+class GemmaService @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val modelManager: GemmaModelManager
+) {
+    private val gson = Gson()
+    private var isInitialized = false
+
+    suspend fun initialize() {
+        withContext(Dispatchers.IO) {
+            try {
+                modelManager.updateStatus(ModelStatus.LOADING)
+
+                if (!modelManager.isModelAvailable()) {
+                    modelManager.updateStatus(ModelStatus.NOT_DOWNLOADED,
+                        "Model not found. Please place the Gemma 4 E2B model in the app's files directory.")
+                    return@withContext
+                }
+
+                // MediaPipe LLM inference initialization would go here
+                // For now, we mark as ready if model file exists
+                // In production, initialize MediaPipe LlmInference here
+                isInitialized = true
+                modelManager.updateStatus(ModelStatus.READY)
+            } catch (e: Exception) {
+                modelManager.updateStatus(ModelStatus.ERROR, e.message)
+            }
+        }
+    }
+
+    suspend fun parseReceipt(ocrText: String): ParsedReceipt {
+        if (!isInitialized) {
+            // Fallback to rule-based parsing when model isn't available
+            return fallbackParseReceipt(ocrText)
+        }
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val prompt = PromptTemplates.receiptParsingPrompt(ocrText)
+                val response = runInference(prompt)
+                parseJsonResponse(response)
+            } catch (e: Exception) {
+                fallbackParseReceipt(ocrText)
+            }
+        }
+    }
+
+    suspend fun categorizeExpense(description: String): String {
+        if (!isInitialized) return fallbackCategorize(description)
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val prompt = PromptTemplates.categorizationPrompt(description)
+                val response = runInference(prompt).trim().lowercase()
+                val validCategories = listOf("food", "transport", "utilities", "shopping",
+                    "entertainment", "health", "travel", "other")
+                if (response in validCategories) response else fallbackCategorize(description)
+            } catch (e: Exception) {
+                fallbackCategorize(description)
+            }
+        }
+    }
+
+    suspend fun generateInsights(total: Double, breakdown: Map<String, Double>): String {
+        if (!isInitialized) return fallbackInsights(total, breakdown)
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val prompt = PromptTemplates.spendingInsightsPrompt(total, breakdown)
+                runInference(prompt)
+            } catch (e: Exception) {
+                fallbackInsights(total, breakdown)
+            }
+        }
+    }
+
+    private suspend fun runInference(prompt: String): String {
+        // TODO: Replace with actual MediaPipe LlmInference call
+        // val result = llmInference.generateResponse(prompt)
+        // return result
+
+        // Placeholder - returns empty until model is properly integrated
+        return ""
+    }
+
+    private fun parseJsonResponse(json: String): ParsedReceipt {
+        return try {
+            val cleaned = json.trim()
+                .removePrefix("```json")
+                .removePrefix("```")
+                .removeSuffix("```")
+                .trim()
+            gson.fromJson(cleaned, ParsedReceipt::class.java)
+        } catch (e: JsonSyntaxException) {
+            ParsedReceipt()
+        }
+    }
+
+    // Rule-based fallback parsing
+    private fun fallbackParseReceipt(ocrText: String): ParsedReceipt {
+        val lines = ocrText.lines().map { it.trim() }.filter { it.isNotBlank() }
+
+        val vendor = lines.firstOrNull() ?: "Unknown"
+
+        // Find total amount - look for patterns like "Total: 123.45" or "₹123.45"
+        val amountRegex = Regex("""(?:total|amount|grand\s*total|net|due)[:\s]*[₹$]?\s*(\d+[.,]\d{0,2})""", RegexOption.IGNORE_CASE)
+        val currencyRegex = Regex("""[₹$]\s*(\d+[.,]\d{0,2})""")
+        val amount = amountRegex.find(ocrText)?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull()
+            ?: currencyRegex.findAll(ocrText).lastOrNull()?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull()
+            ?: 0.0
+
+        // Find date
+        val dateRegex = Regex("""(\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4})""")
+        val dateMatch = dateRegex.find(ocrText)?.value ?: ""
+
+        val category = fallbackCategorize(vendor)
+
+        return ParsedReceipt(
+            vendor = vendor,
+            amount = amount,
+            date = dateMatch,
+            category = category,
+            items = lines.filter { it.contains(Regex("""\d+[.,]\d{2}""")) }.take(10)
+        )
+    }
+
+    private fun fallbackCategorize(description: String): String {
+        val lower = description.lowercase()
+        return when {
+            lower.containsAny("restaurant", "cafe", "food", "pizza", "burger", "coffee", "tea", "bakery", "swiggy", "zomato", "dining") -> "food"
+            lower.containsAny("uber", "ola", "taxi", "fuel", "petrol", "diesel", "metro", "bus", "train", "parking") -> "transport"
+            lower.containsAny("electricity", "water", "gas", "internet", "phone", "mobile", "recharge", "bill") -> "utilities"
+            lower.containsAny("amazon", "flipkart", "myntra", "mall", "store", "shop", "market") -> "shopping"
+            lower.containsAny("movie", "netflix", "spotify", "game", "concert", "show", "theatre") -> "entertainment"
+            lower.containsAny("hospital", "doctor", "medicine", "pharmacy", "medical", "clinic", "health") -> "health"
+            lower.containsAny("hotel", "flight", "booking", "travel", "trip", "airport") -> "travel"
+            else -> "other"
+        }
+    }
+
+    private fun fallbackInsights(total: Double, breakdown: Map<String, Double>): String {
+        val topCategory = breakdown.maxByOrNull { it.value }
+        val percentage = if (total > 0 && topCategory != null)
+            (topCategory.value / total * 100).toInt() else 0
+
+        return buildString {
+            append("This month you spent ₹%.0f in total. ".format(total))
+            if (topCategory != null) {
+                append("Your biggest category was ${topCategory.key} at $percentage% of total spending. ")
+            }
+            append("Consider reviewing your top spending categories for potential savings.")
+        }
+    }
+
+    private fun String.containsAny(vararg keywords: String): Boolean =
+        keywords.any { this.contains(it) }
+}
