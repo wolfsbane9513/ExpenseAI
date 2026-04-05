@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Security -->
+    <issue id="HardcodedDebugMode" severity="error" />
+    <issue id="AllowBackup" severity="warning" />
+    <issue id="ExportedContentProvider" severity="error" />
+    <issue id="ExportedReceiver" severity="error" />
+    <issue id="ExportedService" severity="error" />
+    <issue id="SetWorldReadable" severity="error" />
+    <issue id="SetWorldWritable" severity="error" />
+    <issue id="GrantAllUris" severity="error" />
+    <issue id="WorldReadableFiles" severity="error" />
+    <issue id="WorldWriteableFiles" severity="error" />
+    <issue id="UnprotectedSMSBroadcastReceiver" severity="error" />
+    <issue id="UnsafeProtectedBroadcastReceiver" severity="error" />
+
+    <!-- Correctness -->
+    <issue id="NewApi" severity="error" />
+    <issue id="InlinedApi" severity="warning" />
+    <issue id="MissingPermission" severity="error" />
+    <issue id="WrongThread" severity="error" />
+
+    <!-- Performance -->
+    <issue id="DrawAllocation" severity="warning" />
+    <issue id="Wakelock" severity="error" />
+    <issue id="Recycle" severity="warning" />
+
+    <!-- Usability -->
+    <issue id="ContentDescription" severity="warning" />
+
+    <!-- Internationalization -->
+    <issue id="HardcodedText" severity="warning" />
+    <issue id="SetTextI18n" severity="warning" />
+</lint>

@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("io.gitlab.arturbosch.detekt")
+    id("org.owasp.dependencycheck")
 }
 
 android {
@@ -22,13 +24,31 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val keystorePath = System.getenv("KEYSTORE_PATH") ?: "release-keystore.jks"
+            if (file(keystorePath).exists()) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias = System.getenv("KEY_ALIAS") ?: ""
+                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 
@@ -54,6 +74,24 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    lint {
+        lintConfig = file("lint.xml")
+        warningsAsErrors = true
+        abortOnError = true
+        checkDependencies = true
+    }
+}
+
+detekt {
+    config.setFrom(files("${rootProject.projectDir}/config/detekt.yml"))
+    buildUponDefaultConfig = true
+    allRules = false
+}
+
+dependencyCheck {
+    failBuildOnCVSS = 7.0f
+    formats = listOf("HTML", "JSON")
 }
 
 dependencies {
@@ -101,6 +139,16 @@ dependencies {
 
     // Gson for JSON parsing
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // Security - Encrypted Storage
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    // Security - Biometric Authentication
+    implementation("androidx.biometric:biometric:1.1.0")
+
+    // Security - SQLCipher (encrypted Room database)
+    implementation("net.zetetic:android-database-sqlcipher:4.5.4")
+    implementation("androidx.sqlite:sqlite-ktx:2.4.0")
 
     // Core
     implementation("androidx.core:core-ktx:1.12.0")

@@ -1,6 +1,7 @@
 package com.expenseai.ai
 
 import android.content.Context
+import com.expenseai.security.InputSanitizer
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -48,28 +49,36 @@ class GemmaService @Inject constructor(
     }
 
     suspend fun parseReceipt(ocrText: String): ParsedReceipt {
+        // Sanitize OCR text to prevent prompt injection
+        val sanitizedText = InputSanitizer.sanitizeOcrText(ocrText)
+
         if (!isInitialized) {
-            // Fallback to rule-based parsing when model isn't available
-            return fallbackParseReceipt(ocrText)
+            return fallbackParseReceipt(sanitizedText)
         }
 
         return withContext(Dispatchers.IO) {
             try {
-                val prompt = PromptTemplates.receiptParsingPrompt(ocrText)
+                val prompt = PromptTemplates.receiptParsingPrompt(sanitizedText)
                 val response = runInference(prompt)
-                parseJsonResponse(response)
+                val parsed = parseJsonResponse(response)
+                // Sanitize parsed output
+                parsed.copy(
+                    vendor = InputSanitizer.sanitizeVendorName(parsed.vendor),
+                    category = InputSanitizer.validateCategory(parsed.category)
+                )
             } catch (e: Exception) {
-                fallbackParseReceipt(ocrText)
+                fallbackParseReceipt(sanitizedText)
             }
         }
     }
 
     suspend fun categorizeExpense(description: String): String {
-        if (!isInitialized) return fallbackCategorize(description)
+        val sanitized = InputSanitizer.sanitizeTextInput(description)
+        if (!isInitialized) return fallbackCategorize(sanitized)
 
         return withContext(Dispatchers.IO) {
             try {
-                val prompt = PromptTemplates.categorizationPrompt(description)
+                val prompt = PromptTemplates.categorizationPrompt(sanitized)
                 val response = runInference(prompt).trim().lowercase()
                 val validCategories = listOf("food", "transport", "utilities", "shopping",
                     "entertainment", "health", "travel", "other")

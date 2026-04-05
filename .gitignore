@@ -25,3 +25,20 @@ release/
 *.gguf
 *.bin
 *.safetensors
+
+# Security - signing keys and secrets
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+signing.properties
+keystore.properties
+
+# Environment / secrets
+.env
+.env.*
+*.secret
+
+# Dependency check reports
+dependency-check-report.*
