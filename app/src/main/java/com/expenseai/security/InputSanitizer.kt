@@ -40,15 +40,20 @@ object InputSanitizer {
     // Sanitize SMS text before sending to LLM
     fun sanitizeSmsText(raw: String): String {
         return raw
-            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]"), "")
+            .trim()
+            .replace(Regex("<[^>]*>"), "")                              // strip HTML/XML tags
+            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]"), "") // strip control chars
             .replace(Regex("<start_of_turn>|<end_of_turn>"), "")
             .take(MAX_SMS_LENGTH)
     }
 
+    // HTML is stripped first so any injection markers embedded in tag attributes are
+    // removed by the tag-strip pass; the injection-marker step then catches any
+    // freestanding markers that survived as plain text.
     // Sanitize email text before sending to LLM
     fun sanitizeEmailText(raw: String): String {
         return raw
-            .replace(Regex("<[^>]*>"), "")                              // strip HTML/XML tags
+            .replace(Regex("<[^>]*>"), "")                              // strip HTML/XML tags (first)
             .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]"), "") // strip control chars
             .replace(Regex("<start_of_turn>|<end_of_turn>"), "")
             .take(MAX_EMAIL_LENGTH)
