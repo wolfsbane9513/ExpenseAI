@@ -37,6 +37,23 @@ object InputSanitizer {
             .take(MAX_OCR_LENGTH)
     }
 
+    // Sanitize SMS text before sending to LLM
+    fun sanitizeSmsText(raw: String): String {
+        return raw
+            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]"), "")
+            .replace(Regex("<start_of_turn>|<end_of_turn>"), "")
+            .take(MAX_SMS_LENGTH)
+    }
+
+    // Sanitize email text before sending to LLM
+    fun sanitizeEmailText(raw: String): String {
+        return raw
+            .replace(Regex("<[^>]*>"), "")                              // strip HTML/XML tags
+            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]"), "") // strip control chars
+            .replace(Regex("<start_of_turn>|<end_of_turn>"), "")
+            .take(MAX_EMAIL_LENGTH)
+    }
+
     // Sanitize vendor name for display
     fun sanitizeVendorName(vendor: String): String {
         return vendor
@@ -71,4 +88,6 @@ object InputSanitizer {
     private const val MAX_AMOUNT_LENGTH = 15
     private const val MAX_OCR_LENGTH = 5000
     private const val MAX_VENDOR_LENGTH = 100
+    private const val MAX_SMS_LENGTH = 500
+    private const val MAX_EMAIL_LENGTH = 2000
 }
