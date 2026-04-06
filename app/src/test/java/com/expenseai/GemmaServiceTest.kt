@@ -3,7 +3,6 @@ package com.expenseai
 import com.expenseai.ai.GemmaModelManager
 import com.expenseai.ai.GemmaService
 import com.expenseai.ai.ModelStatus
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -32,14 +31,12 @@ class GemmaServiceTest {
 
     @Test
     fun `fallback categorize identifies food keywords`() = runTest {
-        every { modelManager.isModelAvailable() } returns false
         val result = service.categorizeExpense("Swiggy order")
         assertEquals("food", result)
     }
 
     @Test
     fun `fallback categorize identifies transport keywords`() = runTest {
-        every { modelManager.isModelAvailable() } returns false
         val result = service.categorizeExpense("Uber ride")
         assertEquals("transport", result)
     }

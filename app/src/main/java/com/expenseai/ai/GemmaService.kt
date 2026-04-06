@@ -26,7 +26,7 @@ class GemmaService @Inject constructor(
 ) {
     private val gson = Gson()
     private var llmInference: LlmInference? = null
-    private var isInitialized = false
+    @Volatile private var isInitialized = false
 
     suspend fun initialize() {
         withContext(Dispatchers.IO) {
@@ -46,6 +46,7 @@ class GemmaService @Inject constructor(
                     .setTemperature(0.1f)
                     .setTopK(1)
                     .build()
+                llmInference?.close()
                 llmInference = LlmInference.createFromOptions(context, options)
                 isInitialized = true
                 modelManager.updateStatus(ModelStatus.READY)
@@ -111,7 +112,7 @@ class GemmaService @Inject constructor(
         return try {
             val cleaned = json.trim()
                 .removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-            gson.fromJson(cleaned, ParsedReceipt::class.java)
+            gson.fromJson(cleaned, ParsedReceipt::class.java) ?: ParsedReceipt()
         } catch (e: JsonSyntaxException) {
             ParsedReceipt()
         }
@@ -120,8 +121,8 @@ class GemmaService @Inject constructor(
     private fun fallbackParseReceipt(ocrText: String): ParsedReceipt {
         val lines = ocrText.lines().map { it.trim() }.filter { it.isNotBlank() }
         val vendor = lines.firstOrNull() ?: "Unknown"
-        val amountRegex = Regex("""(?:total|amount|grand\s*total|net|due)[:\s]*[₹$]?\s*(\d+[.,]\d{0,2})""", RegexOption.IGNORE_CASE)
-        val currencyRegex = Regex("""[₹$]\s*(\d+[.,]\d{0,2})""")
+        val amountRegex = Regex("""(?:total|amount|grand\s*total|net|due)[:\s]*(?:Rs\.?|INR|[₹$])?\s*(\d+(?:[.,]\d{0,2})?)""", RegexOption.IGNORE_CASE)
+        val currencyRegex = Regex("""(?:Rs\.?|INR|[₹$])\s*(\d+(?:[.,]\d{0,2})?)""")
         val amount = amountRegex.find(ocrText)?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull()
             ?: currencyRegex.findAll(ocrText).lastOrNull()?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull()
             ?: 0.0
