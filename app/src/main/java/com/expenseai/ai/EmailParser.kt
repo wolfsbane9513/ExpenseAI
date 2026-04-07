@@ -61,23 +61,23 @@ class EmailParser @Inject constructor() {
     }
 
     private fun extractDate(text: String): String {
-        // ISO: 2026-04-06
+        // ISO: 2026-04-06 — fall through on parse failure so subsequent formats are tried
         Regex("""(\d{4}-\d{2}-\d{2})""").find(text)?.let {
-            return try { LocalDate.parse(it.value).toString() } catch (_: Exception) { "" }
+            try { return LocalDate.parse(it.value).toString() } catch (_: Exception) { /* fall through */ }
         }
         // dd Mon yyyy  e.g. 06 Apr 2026
         Regex("""(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})""").find(text)?.let { m ->
-            return try {
-                LocalDate.parse(m.value, DateTimeFormatter.ofPattern("d MMM yyyy")).toString()
-            } catch (_: DateTimeParseException) { "" }
+            try {
+                return LocalDate.parse(m.value, DateTimeFormatter.ofPattern("d MMM yyyy")).toString()
+            } catch (_: DateTimeParseException) { /* fall through */ }
         }
         // dd-MM-yyyy or dd/MM/yyyy
         Regex("""(\d{2}[-/]\d{2}[-/]\d{4})""").find(text)?.let { m ->
-            return try {
+            try {
                 val fmt = if (m.value.contains('/')) DateTimeFormatter.ofPattern("dd/MM/yyyy")
                           else DateTimeFormatter.ofPattern("dd-MM-yyyy")
-                LocalDate.parse(m.value, fmt).toString()
-            } catch (_: DateTimeParseException) { "" }
+                return LocalDate.parse(m.value, fmt).toString()
+            } catch (_: DateTimeParseException) { /* fall through */ }
         }
         return LocalDate.now().toString()
     }
