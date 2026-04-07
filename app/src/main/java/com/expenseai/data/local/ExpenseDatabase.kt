@@ -32,6 +32,10 @@ abstract class ExpenseDatabase : RoomDatabase() {
                         createdAt INTEGER NOT NULL
                     )
                 """.trimIndent())
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_pending_expenses_dedupKey " +
+                    "ON pending_expenses(dedupKey)"
+                )
             }
         }
     }

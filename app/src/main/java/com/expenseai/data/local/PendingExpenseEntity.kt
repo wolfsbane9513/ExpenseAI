@@ -1,9 +1,13 @@
 package com.expenseai.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "pending_expenses")
+@Entity(
+    tableName = "pending_expenses",
+    indices = [Index(value = ["dedupKey"], unique = true)]
+)
 data class PendingExpenseEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
