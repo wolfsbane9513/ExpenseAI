@@ -23,7 +23,7 @@ class SmsParserTest {
         val result = parser.parse(sms)
         assertNotNull(result)
         assertEquals(2500.0, result!!.amount, 0.01)
-        assertTrue(result.vendor.contains("AMAZON", ignoreCase = true))
+        assertEquals("AMAZON", result.vendor.trim())
     }
 
     @Test fun `parses Axis UPI debit`() {
@@ -80,6 +80,13 @@ class SmsParserTest {
         val result = parser.parse(sms)
         assertNotNull(result)
         assertTrue(result!!.date.isNotBlank())
+    }
+
+    @Test fun `extracts date in dd-Mon-yy format`() {
+        val sms = "ICICI Bank: INR 2500.00 spent on Credit Card XX5678 at AMAZON on 06-Apr-26."
+        val result = parser.parse(sms)
+        assertNotNull(result)
+        assertEquals("2026-04-06", result!!.date)
     }
 
     @Test fun `returns null for OTP message`() {

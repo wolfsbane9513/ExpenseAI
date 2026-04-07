@@ -28,25 +28,35 @@ class SmsParser @Inject constructor() {
     }
 
     private fun extractAmount(sms: String): Double? {
-        val patterns = listOf(
-            // Rs.1,500.00 or Rs 1500 or Rs.1500
-            Regex("""(?:Rs\.?|INR)\s*([\d,]+(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
-            // ₹1500 or ₹1,500.00
-            Regex("""₹\s*([\d,]+(?:\.\d{1,2})?)"""),
-            // spent INR 2500
-            Regex("""spent\s+INR\s+([\d,]+(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        // Collect all currency amounts with their positions
+        val amountPattern = Regex(
+            """(?:(?:Rs\.?|INR)\s*([\d,]+(?:\.\d{1,2})?))|(?:₹\s*([\d,]+(?:\.\d{1,2})?))""",
+            RegexOption.IGNORE_CASE
         )
-        for (pattern in patterns) {
-            val match = pattern.find(sms) ?: continue
-            val raw = match.groupValues[1].replace(",", "")
-            return raw.toDoubleOrNull()
+        val candidates = amountPattern.findAll(sms).mapNotNull { m ->
+            val raw = m.groupValues[1].ifBlank { m.groupValues[2] }.replace(",", "")
+            val value = raw.toDoubleOrNull() ?: return@mapNotNull null
+            Pair(m.range.first, value)
+        }.toList()
+
+        if (candidates.isEmpty()) return null
+
+        // Prefer amount closest to a debit/spend keyword to avoid returning balance amounts
+        val debitKeywords = Regex("""(?:debited|spent|withdrawn|transferred|charged|paid)""", RegexOption.IGNORE_CASE)
+        val keywordPositions = debitKeywords.findAll(sms).map { it.range.first }.toList()
+
+        return if (keywordPositions.isNotEmpty()) {
+            candidates.minByOrNull { (pos, _) ->
+                keywordPositions.minOf { kp -> Math.abs(pos - kp) }
+            }?.second
+        } else {
+            candidates.first().second
         }
-        return null
     }
 
     private fun extractVendor(sms: String): String {
         val patterns = listOf(
-            Regex("""(?:to|at)\s+([A-Za-z0-9@._\- ]{3,40})""", RegexOption.IGNORE_CASE),
+            Regex("""(?:to|at)\s+([A-Za-z0-9@._\-]{3,40})""", RegexOption.IGNORE_CASE),
             Regex("""VPA\s+([A-Za-z0-9@._\-]+)""", RegexOption.IGNORE_CASE),
             Regex("""merchant[:\s]+([A-Za-z0-9 &]{3,40})""", RegexOption.IGNORE_CASE),
         )
