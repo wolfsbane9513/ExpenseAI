@@ -9,6 +9,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.expenseai.domain.model.Expense
 import com.expenseai.domain.model.getCategoryById
+import com.expenseai.ui.screens.review.SourceBadge
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -47,11 +48,17 @@ fun ExpenseCard(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold
                 )
-                Text(
-                    text = "${category.label} • ${expense.date}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SourceBadge(source = expense.source)
+                    Text(
+                        text = "${category.label} • ${expense.date}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Text(

@@ -1,11 +1,8 @@
 package com.expenseai.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF2D6A4F),
@@ -32,46 +29,28 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF9CD8AC),
-    onPrimary = Color(0xFF003920),
-    primaryContainer = Color(0xFF0B5132),
-    onPrimaryContainer = Color(0xFFB7E4C7),
-    secondary = Color(0xFFB0D1A2),
-    onSecondary = Color(0xFF1D3616),
-    secondaryContainer = Color(0xFF334D2B),
-    onSecondaryContainer = Color(0xFFCCEDBD),
-    tertiary = Color(0xFFA3CEDB),
-    onTertiary = Color(0xFF023640),
-    tertiaryContainer = Color(0xFF224C57),
-    onTertiaryContainer = Color(0xFFBFEAF7),
-    background = Color(0xFF1A1C19),
-    onBackground = Color(0xFFE2E3DD),
-    surface = Color(0xFF1A1C19),
-    onSurface = Color(0xFFE2E3DD),
-    surfaceVariant = Color(0xFF424940),
-    onSurfaceVariant = Color(0xFFC1C9BD),
-    error = Color(0xFFFFB4AB),
-    onError = Color(0xFF690005),
-    outline = Color(0xFF8B9389)
+    primary = Color(0xFF059669),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFF064E3B),
+    onPrimaryContainer = Color(0xFFD1FAE5),
+    secondary = Color(0xFF0EA5E9),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFF0C4A6E),
+    onSecondaryContainer = Color(0xFFE0F2FE),
+    background = Color(0xFF0F172A),
+    onBackground = Color(0xFFF1F5F9),
+    surface = Color(0xFF1E293B),
+    onSurface = Color(0xFFF1F5F9),
+    surfaceVariant = Color(0xFF334155),
+    onSurfaceVariant = Color(0xFF94A3B8),
+    error = Color(0xFFDC2626),
+    onError = Color(0xFFFFFFFF)
 )
 
 @Composable
-fun ExpenseAITheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
+fun ExpenseAITheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = DarkColorScheme,
         typography = Typography(),
         content = content
     )
