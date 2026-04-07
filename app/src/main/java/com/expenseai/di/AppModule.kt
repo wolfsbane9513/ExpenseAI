@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.expenseai.data.local.ExpenseDao
 import com.expenseai.data.local.ExpenseDatabase
+import com.expenseai.data.local.PendingExpenseDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,6 +32,7 @@ object AppModule {
             "expense_db"
         )
             .openHelperFactory(factory)
+            .addMigrations(ExpenseDatabase.MIGRATION_1_2)
             .build()
     }
 
@@ -38,6 +40,11 @@ object AppModule {
     @Singleton
     fun provideExpenseDao(database: ExpenseDatabase): ExpenseDao =
         database.expenseDao()
+
+    @Provides
+    @Singleton
+    fun providePendingExpenseDao(database: ExpenseDatabase): PendingExpenseDao =
+        database.pendingExpenseDao()
 
     private fun getOrCreateDatabaseKey(context: Context): ByteArray {
         val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
