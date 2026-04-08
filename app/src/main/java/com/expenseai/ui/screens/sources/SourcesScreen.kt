@@ -1,21 +1,28 @@
 package com.expenseai.ui.screens.sources
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Sms
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.expenseai.ui.screens.review.PendingReviewSheet
@@ -24,31 +31,10 @@ import com.expenseai.ui.screens.review.PendingReviewSheet
 @Composable
 fun SourcesScreen(viewModel: SourcesViewModel = hiltViewModel()) {
     val pendingCount by viewModel.pendingCount.collectAsStateWithLifecycle()
-    val smsEnabled by viewModel.smsEnabled.collectAsStateWithLifecycle()
-    val isScanning by viewModel.isScanning.collectAsStateWithLifecycle()
-    val lastScanCount by viewModel.lastScanCount.collectAsStateWithLifecycle()
     var showReviewSheet by remember { mutableStateOf(false) }
-    var showPermissionDeniedSnackbar by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
-
-    val smsPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) viewModel.setSmsEnabled(true)
-        else showPermissionDeniedSnackbar = true
-    }
-
-    LaunchedEffect(showPermissionDeniedSnackbar) {
-        if (showPermissionDeniedSnackbar) {
-            snackbarHostState.showSnackbar("SMS permission required to scan transactions")
-            showPermissionDeniedSnackbar = false
-        }
-    }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Data Sources") }) },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        topBar = { TopAppBar(title = { Text("Data Sources") }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -70,64 +56,27 @@ fun SourcesScreen(viewModel: SourcesViewModel = hiltViewModel()) {
             }
 
             Card(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(Icons.Default.Sms, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary)
-                        Column {
-                            Text("SMS Inbox", style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium)
-                            Text(
-                                text = if (isScanning) "Scanning…"
-                                       else if (lastScanCount > 0) "Found $lastScanCount transaction${if (lastScanCount == 1) "" else "s"}"
-                                       else "Auto-detects bank transactions",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                    Switch(
-                        checked = smsEnabled,
-                        onCheckedChange = { enabled ->
-                            if (enabled) {
-                                val hasPerm = ContextCompat.checkSelfPermission(
-                                    context, Manifest.permission.READ_SMS
-                                ) == PackageManager.PERMISSION_GRANTED
-                                if (hasPerm) viewModel.setSmsEnabled(true)
-                                else smsPermissionLauncher.launch(Manifest.permission.READ_SMS)
-                            } else {
-                                viewModel.setSmsEnabled(false)
-                            }
-                        }
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
                     )
-                }
-            }
-
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(Icons.Default.Email, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary)
-                    Column {
-                        Text("Email (Share)", style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium)
-                        Text(
-                            text = "Share any receipt email → ExpenseAI",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = "Email receipts",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Share any receipt email to ExpenseAI to stage it for review.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
