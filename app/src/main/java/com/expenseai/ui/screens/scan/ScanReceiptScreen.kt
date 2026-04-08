@@ -90,7 +90,7 @@ fun ScanReceiptScreen(
                             val imageFile = File(context.cacheDir, "receipt_${System.currentTimeMillis()}.jpg")
                             tempImageUri = FileProvider.getUriForFile(
                                 context,
-                                "${context.packageName}.fileprovider",
+                                "${context.packageName}.fileProvider",
                                 imageFile
                             )
                             cameraLauncher.launch(tempImageUri!!)
