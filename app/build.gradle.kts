@@ -124,8 +124,8 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
 
     // Hilt DI
-    implementation("com.google.dagger:hilt-android:2.50")
-    ksp("com.google.dagger:hilt-compiler:2.50")
+    implementation("com.google.dagger:hilt-android:2.59.2")
+    ksp("com.google.dagger:hilt-compiler:2.59.2")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Coroutines
@@ -170,6 +170,6 @@ dependencies {
     testImplementation("androidx.room:room-testing:2.6.1")
 
     // Hilt for instrumented tests
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.50")
-    kspAndroidTest("com.google.dagger:hilt-compiler:2.50")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.59.2")
+    kspAndroidTest("com.google.dagger:hilt-compiler:2.59.2")
 }
