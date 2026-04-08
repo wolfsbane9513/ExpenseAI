@@ -1,4 +1,4 @@
-package com.expenseai.ui
+package com.expenseai
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,7 +16,10 @@ class ShareActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sharedText = intent?.getStringExtra(Intent.EXTRA_TEXT) ?: run { finish(); return }
+        val sharedText = intent?.getStringExtra(Intent.EXTRA_TEXT) ?: run {
+            finish()
+            return
+        }
         val subject = intent?.getStringExtra(Intent.EXTRA_SUBJECT) ?: ""
 
         setContent {

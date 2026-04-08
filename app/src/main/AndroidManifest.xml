@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.ShareActivity"
+            android:name=".ShareActivity"
             android:exported="true"
             android:theme="@style/Theme.ExpenseAI.Translucent"
             android:excludeFromRecents="true">
