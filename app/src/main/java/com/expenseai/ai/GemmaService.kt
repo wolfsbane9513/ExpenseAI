@@ -4,7 +4,7 @@ import android.content.Context
 import com.expenseai.security.InputSanitizer
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import com.google.mediapipe.tasks.genai.inference.LlmInference
+import com.google.mediapipe.tasks.genai.llminference.LlmInference
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

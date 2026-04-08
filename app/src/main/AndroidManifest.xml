@@ -34,7 +34,7 @@
         <activity
             android:name=".ShareActivity"
             android:exported="true"
-            android:theme="@style/Theme.ExpenseAI.Translucent"
+            android:theme="@style/Theme.ExpenseAI"
             android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
