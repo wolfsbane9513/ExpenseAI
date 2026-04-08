@@ -23,13 +23,34 @@ import com.expenseai.ui.components.MonthSelector
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.Locale
+import androidx.compose.ui.tooling.preview.Preview
+import com.expenseai.ui.theme.ExpenseAITheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
+    onScanClick: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    DashboardContent(
+        uiState = uiState,
+        onPreviousMonth = viewModel::previousMonth,
+        onNextMonth = viewModel::nextMonth,
+        onAddExpense = viewModel::addExpense,
+        onScanClick = onScanClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DashboardContent(
+    uiState: DashboardUiState,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
+    onAddExpense: (String, Double, String, String) -> Unit,
+    onScanClick: () -> Unit = {}
+) {
     val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
     var showAddDialog by remember { mutableStateOf(false) }
 
@@ -63,8 +84,8 @@ fun DashboardScreen(
             item {
                 MonthSelector(
                     currentMonth = uiState.currentMonth,
-                    onPreviousMonth = viewModel::previousMonth,
-                    onNextMonth = viewModel::nextMonth
+                    onPreviousMonth = onPreviousMonth,
+                    onNextMonth = onNextMonth
                 )
             }
 
@@ -195,7 +216,7 @@ fun DashboardScreen(
         AddExpenseDialog(
             onDismiss = { showAddDialog = false },
             onConfirm = { vendor, amount, category, date ->
-                viewModel.addExpense(vendor, amount, category, date)
+                onAddExpense(vendor, amount, category, date)
                 showAddDialog = false
             }
         )
@@ -283,4 +304,23 @@ private fun AddExpenseDialog(
             }
         }
     )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun DashboardPreview() {
+    ExpenseAITheme {
+        DashboardContent(
+            uiState = DashboardUiState(
+                totalSpending = 1250.0,
+                recentExpenses = listOf(
+                    com.expenseai.domain.model.Expense(1, "Starbucks", 250.0, "food", "2024-03-20"),
+                    com.expenseai.domain.model.Expense(2, "Amazon", 1000.0, "shopping", "2024-03-19")
+                )
+            ),
+            onPreviousMonth = {},
+            onNextMonth = {},
+            onAddExpense = { _, _, _, _ -> }
+        )
+    }
 }
