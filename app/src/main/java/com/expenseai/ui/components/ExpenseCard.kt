@@ -16,8 +16,8 @@ import java.util.Locale
 @Composable
 fun ExpenseCard(
     expense: Expense,
-    onClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     val category = getCategoryById(expense.category)
     val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
