@@ -86,6 +86,7 @@ android {
 
 detekt {
     config.setFrom(files("${rootProject.projectDir}/config/detekt.yml"))
+    baseline = file("$projectDir/detekt-baseline.xml")
     buildUponDefaultConfig = true
     allRules = false
 }

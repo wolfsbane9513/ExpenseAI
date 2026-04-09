@@ -196,7 +196,7 @@ The branch work in this repo includes a recent lint cleanup so `./gradlew lintDe
 
 ## Contributing
 
-1. Create a feature branch from `master`
+1. Create a feature branch from the current default branch
 2. Make focused commits
 3. Run lint and the most relevant test task locally
 4. Push the branch
