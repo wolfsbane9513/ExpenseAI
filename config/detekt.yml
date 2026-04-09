@@ -81,11 +81,6 @@ potential-bugs:
     active: true
   ImplicitDefaultLocale:
     active: true
-  UnusedImports:
-    active: true
-
-security:
-  active: true
 
 style:
   active: true
@@ -110,6 +105,8 @@ style:
   ReturnCount:
     active: true
     max: 4
+  UnusedImports:
+    active: true
   WildcardImport:
     active: true
     excludeImports:

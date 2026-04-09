@@ -29,7 +29,7 @@ class ModelIntegrityChecker @Inject constructor(
             return IntegrityResult(false, "Model file does not exist")
         }
 
-        // Check file size is reasonable (Gemma 4 E2B should be 1.5-2GB quantized)
+        // Check file size is reasonable for an on-device Gemma model bundle.
         val fileSizeMB = modelFile.length() / (1024 * 1024)
         if (fileSizeMB < 100 || fileSizeMB > 5000) {
             return IntegrityResult(false, "Model file size ($fileSizeMB MB) is suspicious")

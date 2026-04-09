@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.kapt")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("io.gitlab.arturbosch.detekt")
@@ -85,6 +86,7 @@ android {
 
 detekt {
     config.setFrom(files("${rootProject.projectDir}/config/detekt.yml"))
+    baseline = file("$projectDir/detekt-baseline.xml")
     buildUponDefaultConfig = true
     allRules = false
 }
@@ -92,6 +94,10 @@ detekt {
 dependencyCheck {
     failBuildOnCVSS = 7.0f
     formats = listOf("HTML", "JSON")
+}
+
+kapt {
+    correctErrorTypes = true
 }
 
 dependencies {
@@ -107,7 +113,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    // MediaPipe LLM Inference for Gemma 4
+    // MediaPipe LLM Inference for on-device Gemma models
     implementation("com.google.mediapipe:tasks-genai:0.10.14")
 
     // ML Kit OCR
@@ -125,7 +131,7 @@ dependencies {
 
     // Hilt DI
     implementation("com.google.dagger:hilt-android:2.50")
-    ksp("com.google.dagger:hilt-compiler:2.50")
+    kapt("com.google.dagger:hilt-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Coroutines
@@ -171,5 +177,5 @@ dependencies {
 
     // Hilt for instrumented tests
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.50")
-    kspAndroidTest("com.google.dagger:hilt-compiler:2.50")
+    kaptAndroidTest("com.google.dagger:hilt-compiler:2.50")
 }

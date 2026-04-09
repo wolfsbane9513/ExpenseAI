@@ -6,10 +6,11 @@ import com.expenseai.data.local.PendingExpenseDao
 import com.expenseai.data.local.PendingExpenseEntity
 import com.expenseai.data.repository.ExpenseRepository
 import com.expenseai.domain.model.Expense
-import com.expenseai.domain.usecase.ProcessEmailUseCase
+import com.expenseai.domain.usecase.ProcessSharedTextUseCase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,10 +21,12 @@ import javax.inject.Inject
 class ReviewViewModel @Inject constructor(
     private val pendingDao: PendingExpenseDao,
     private val repository: ExpenseRepository,
-    private val processEmailUseCase: ProcessEmailUseCase
+    private val processSharedTextUseCase: ProcessSharedTextUseCase
 ) : ViewModel() {
 
     private val gson = Gson()
+    private val _shareStagingState = MutableStateFlow(ShareStagingState())
+    val shareStagingState: StateFlow<ShareStagingState> = _shareStagingState
 
     val pendingExpenses: StateFlow<List<PendingExpenseEntity>> = pendingDao.getAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -41,9 +44,20 @@ class ReviewViewModel @Inject constructor(
         }
     }
 
-    fun processSharedEmail(body: String, subject: String) {
+    fun processSharedText(body: String, subject: String) {
         viewModelScope.launch {
-            processEmailUseCase.execute(body = body, subject = subject)
+            _shareStagingState.value = ShareStagingState(isProcessing = true)
+            val staged = processSharedTextUseCase.execute(body = body, subject = subject)
+            _shareStagingState.value = if (staged) {
+                ShareStagingState(isProcessing = false)
+            } else {
+                ShareStagingState(
+                    isProcessing = false,
+                    errorMessage =
+                        "We couldn't stage that shared text. It may already be queued, " +
+                            "or it may not contain a transaction."
+                )
+            }
         }
     }
 
@@ -57,3 +71,8 @@ class ReviewViewModel @Inject constructor(
         )
     }
 }
+
+data class ShareStagingState(
+    val isProcessing: Boolean = false,
+    val errorMessage: String? = null
+)

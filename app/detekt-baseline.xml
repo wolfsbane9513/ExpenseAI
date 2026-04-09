@@ -1,0 +1,135 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:DashboardScreen.kt$@Composable private fun ModelSetupCard( uiState: DashboardUiState, modelImportSummary: String, onImportModel: () -&gt; Unit, onRemoveModel: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:ScanReceiptScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ScanReceiptScreen( viewModel: ScanViewModel = hiltViewModel() )</ID>
+    <ID>ImplicitDefaultLocale:ExpenseCard.kt$String.format("%.0f", expense.amount)</ID>
+    <ID>ImplicitDefaultLocale:ExpenseRepository.kt$ExpenseRepository$String.format("%04d-%02d-01", year, month)</ID>
+    <ID>ImplicitDefaultLocale:ExpenseRepository.kt$ExpenseRepository$String.format("%04d-%02d-31", year, month)</ID>
+    <ID>LongMethod:DashboardScreen.kt$@Composable private fun ModelSetupCard( uiState: DashboardUiState, modelImportSummary: String, onImportModel: () -&gt; Unit, onRemoveModel: () -&gt; Unit )</ID>
+    <ID>LongMethod:DashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DashboardContent( uiState: DashboardUiState, onPreviousMonth: () -&gt; Unit, onNextMonth: () -&gt; Unit, onAddExpense: (String, Double, String, String) -&gt; Unit, onScanClick: () -&gt; Unit = {}, onImportModel: () -&gt; Unit = {}, onRemoveModel: () -&gt; Unit = {}, modelImportSummary: String = "" )</ID>
+    <ID>LongMethod:DashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun AddExpenseDialog( onDismiss: () -&gt; Unit, onConfirm: (String, Double, String, String) -&gt; Unit )</ID>
+    <ID>LongMethod:ExpenseCard.kt$@Composable fun ExpenseCard( expense: Expense, modifier: Modifier = Modifier, onClick: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:HistoryScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun HistoryScreen( viewModel: HistoryViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:InsightsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun InsightsScreen( viewModel: InsightsViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:NavGraph.kt$@Composable fun ExpenseNavHost( isShowingPreview: Boolean = false )</ID>
+    <ID>LongMethod:PendingReviewSheet.kt$@Composable private fun PendingExpenseCard( item: PendingExpenseEntity, formatter: NumberFormat, onConfirm: () -&gt; Unit, onReject: () -&gt; Unit )</ID>
+    <ID>LongMethod:PendingReviewSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PendingReviewSheet( viewModel: ReviewViewModel = hiltViewModel(), onDismiss: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ScanReceiptScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ScanReceiptScreen( viewModel: ScanViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:ScanReceiptScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ReviewForm( uiState: ScanUiState, onVendorChange: (String) -&gt; Unit, onAmountChange: (String) -&gt; Unit, onCategoryChange: (String) -&gt; Unit, onSave: () -&gt; Unit, onRetry: () -&gt; Unit )</ID>
+    <ID>LongMethod:ShareActivity.kt$ShareActivity$@OptIn(ExperimentalMaterial3Api::class) override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:SourcesScreen.kt$@Composable fun SourceCard( title: String, description: String, icon: ImageVector, statusText: String, isEnabled: Boolean, isPrimary: Boolean )</ID>
+    <ID>LongMethod:SourcesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SourcesScreen(viewModel: SourcesViewModel = hiltViewModel())</ID>
+    <ID>LongParameterList:DashboardScreen.kt$( uiState: DashboardUiState, onPreviousMonth: () -&gt; Unit, onNextMonth: () -&gt; Unit, onAddExpense: (String, Double, String, String) -&gt; Unit, onScanClick: () -&gt; Unit = {}, onImportModel: () -&gt; Unit = {}, onRemoveModel: () -&gt; Unit = {}, modelImportSummary: String = "" )</ID>
+    <ID>LongParameterList:ProcessSharedTextUseCase.kt$ProcessSharedTextUseCase$( rawBody: String, subject: String, emailBody: String, smsBody: String, emailParsed: ParsedReceipt?, smsParsed: ParsedReceipt? )</ID>
+    <ID>LongParameterList:ScanReceiptScreen.kt$( uiState: ScanUiState, onVendorChange: (String) -&gt; Unit, onAmountChange: (String) -&gt; Unit, onCategoryChange: (String) -&gt; Unit, onSave: () -&gt; Unit, onRetry: () -&gt; Unit )</ID>
+    <ID>LongParameterList:SourcesScreen.kt$( title: String, description: String, icon: ImageVector, statusText: String, isEnabled: Boolean, isPrimary: Boolean )</ID>
+    <ID>LoopWithTooManyJumpStatements:EmailParser.kt$EmailParser$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ProcessSmsUseCase.kt$ProcessSmsUseCase$for</ID>
+    <ID>MagicNumber:AppModule.kt$AppModule$256</ID>
+    <ID>MagicNumber:DashboardScreen.kt$1000.0</ID>
+    <ID>MagicNumber:DashboardScreen.kt$250.0</ID>
+    <ID>MagicNumber:EmailParser.kt$EmailParser$10</ID>
+    <ID>MagicNumber:EmailParser.kt$EmailParser$3</ID>
+    <ID>MagicNumber:EmailParser.kt$EmailParser$5</ID>
+    <ID>MagicNumber:EmailParser.kt$EmailParser$80</ID>
+    <ID>MagicNumber:EmailParser.kt$EmailParser.Companion$8</ID>
+    <ID>MagicNumber:ExpenseCard.kt$0xFF111111</ID>
+    <ID>MagicNumber:ExpenseCard.kt$0xFF222222</ID>
+    <ID>MagicNumber:GemmaService.kt$GemmaService$0.1f</ID>
+    <ID>MagicNumber:GemmaService.kt$GemmaService$10</ID>
+    <ID>MagicNumber:GemmaService.kt$GemmaService$1024</ID>
+    <ID>MagicNumber:InsightsScreen.kt$360</ID>
+    <ID>MagicNumber:InsightsScreen.kt$90f</ID>
+    <ID>MagicNumber:ModelIntegrityChecker.kt$ModelIntegrityChecker$1024</ID>
+    <ID>MagicNumber:ModelIntegrityChecker.kt$ModelIntegrityChecker$5000</ID>
+    <ID>MagicNumber:ModelIntegrityChecker.kt$ModelIntegrityChecker$8192</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF00D2FF</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF00FF9D</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF050505</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF0A0A0A</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF111111</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF141414</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF222222</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFF666666</ID>
+    <ID>MagicNumber:PendingReviewSheet.kt$0xFFBD00FF</ID>
+    <ID>MagicNumber:ScanReceiptScreen.kt$500</ID>
+    <ID>MagicNumber:SmsParser.kt$SmsParser$3</ID>
+    <ID>MagicNumber:SmsParser.kt$SmsParser$60</ID>
+    <ID>MagicNumber:SmsParser.kt$SmsParser.Companion$8</ID>
+    <ID>MagicNumber:SourcesScreen.kt$0.4f</ID>
+    <ID>MagicNumber:SourcesScreen.kt$0xFF000000</ID>
+    <ID>MagicNumber:SourcesScreen.kt$0xFF0A0A0A</ID>
+    <ID>MagicNumber:SourcesScreen.kt$0xFF111111</ID>
+    <ID>MagicNumber:SourcesScreen.kt$0xFF141414</ID>
+    <ID>MagicNumber:SourcesScreen.kt$0xFF333333</ID>
+    <ID>MatchingDeclarationName:NavGraph.kt$Screen</ID>
+    <ID>MaxLineLength:EmailParser.kt$EmailParser$Regex("""(?:Grand\s+Total|Order\s+Total|Amount\s+Paid|Total\s+Amount)[:\s]*(?:Rs\.?|INR|₹)?\s*([\d,]+(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE)</ID>
+    <ID>MaxLineLength:ExpenseCard.kt$.</ID>
+    <ID>MaxLineLength:ExpenseCard.kt$Box(modifier = Modifier.size(4.dp).background(Color(0xFF222222), androidx.compose.foundation.shape.CircleShape))</ID>
+    <ID>MaxLineLength:ExpenseDao.kt$ExpenseDao$@Query("SELECT * FROM expenses WHERE vendor LIKE '%' || :query || '%' OR notes LIKE '%' || :query || '%' ORDER BY date DESC")</ID>
+    <ID>MaxLineLength:ExpenseDao.kt$ExpenseDao$@Query("SELECT category, SUM(amount) as total FROM expenses WHERE date BETWEEN :startDate AND :endDate GROUP BY category")</ID>
+    <ID>MaxLineLength:GemmaModelManager.kt$GemmaModelManager$"Install a MediaPipe-compatible Gemma bundle (${supportedExtensions.joinToString()}) into secure app storage. For production, host the bundle and deliver it at runtime instead of packaging it in the APK."</ID>
+    <ID>MaxLineLength:GemmaService.kt$GemmaService$"No AI model is installed yet. Install a MediaPipe-compatible Gemma bundle (.litertlm, .task, .bin, or .tflite) to enable on-device intelligence."</ID>
+    <ID>MaxLineLength:GemmaService.kt$GemmaService$if (topCategory != null) append("Your biggest category was ${topCategory.key} at $percentage% of total spending. ")</ID>
+    <ID>MaxLineLength:GemmaService.kt$GemmaService$lower.containsAny("restaurant","cafe","food","pizza","burger","coffee","tea","bakery","swiggy","zomato","dining") -&gt; "food"</ID>
+    <ID>MaxLineLength:GemmaService.kt$GemmaService$lower.containsAny("uber","ola","taxi","fuel","petrol","diesel","metro","bus","train","parking") -&gt; "transport"</ID>
+    <ID>MaxLineLength:GemmaService.kt$GemmaService$val amountRegex = Regex("""(?:total|amount|grand\s*total|net|due)[:\s]*(?:Rs\.?|INR|[₹$])?\s*(\d+(?:[.,]\d{0,2})?)""", RegexOption.IGNORE_CASE)</ID>
+    <ID>MaxLineLength:PendingReviewSheet.kt$.</ID>
+    <ID>MaxLineLength:PendingReviewSheet.kt$border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))</ID>
+    <ID>MaxLineLength:PromptTemplates.kt$PromptTemplates$append("""{"vendor":"string","amount":0.0,"date":"YYYY-MM-DD","category":"food|transport|utilities|shopping|entertainment|health|travel|other","items":["item1","item2"]}""")</ID>
+    <ID>MaxLineLength:PromptTemplates.kt$PromptTemplates$append("""{"vendor":"string","amount":0.0,"date":"YYYY-MM-DD","category":"food|transport|utilities|shopping|entertainment|health|travel|other","items":["item1"]}""")</ID>
+    <ID>MaxLineLength:PromptTemplates.kt$PromptTemplates$append("""{"vendor":"string","amount":0.0,"date":"YYYY-MM-DD","category":"food|transport|utilities|shopping|entertainment|health|travel|other"}""")</ID>
+    <ID>MaxLineLength:PromptTemplates.kt$PromptTemplates$append("Parse this bank SMS and extract: vendor/payee name, amount (number only), date (YYYY-MM-DD), category.\n\n")</ID>
+    <ID>MaxLineLength:PromptTemplates.kt$PromptTemplates$append("Parse this email and extract: vendor name, total amount (number only), date (YYYY-MM-DD), category, items list.\n\n")</ID>
+    <ID>MaxLineLength:SmsParser.kt$SmsParser.Companion$val refPattern = Regex("""(?:Ref(?:erence)?|UPI Ref)\s*(?:No\.?)?\s*([A-Z0-9]{9,20})""", RegexOption.IGNORE_CASE)</ID>
+    <ID>MaxLineLength:SmsParserTest.kt$SmsParserTest$val sms = "HDFC Bank: Rs.1,500.00 debited from A/c XX4321 on 05-04-26. Avl Bal:Rs.12,345.67. If not done by you call 18002586161"</ID>
+    <ID>MaxLineLength:SmsParserTest.kt$SmsParserTest$val sms = "Rs.350 debited from A/c XX9876 to VPA swiggy@axisbank on 06-04-2026 (UPI Ref No 123456789012). -Axis Bank"</ID>
+    <ID>MaxLineLength:SmsParserTest.kt$SmsParserTest$val sms = "SBI: Your A/c XXXXXX1234 is debited for Rs 5000.00 at ATM on 06/04/2026. Available Balance is Rs 20,000.00."</ID>
+    <ID>MaxLineLength:SourcesScreen.kt$color = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)</ID>
+    <ID>MaxLineLength:SourcesScreen.kt$color = if (isPrimary) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent</ID>
+    <ID>MaxLineLength:SourcesScreen.kt$if (isPrimary) Color(0xFF141414).copy(alpha = 0.8f) else Color(0xFF0A0A0A).copy(alpha = 0.9f)</ID>
+    <ID>MaxLineLength:SourcesScreen.kt$tint = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant</ID>
+    <ID>MaxLineLength:SourcesScreen.kt$tint = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)</ID>
+    <ID>ReturnCount:ModelIntegrityChecker.kt$ModelIntegrityChecker$fun verifyModelIntegrity(): IntegrityResult</ID>
+    <ID>SwallowedException:GemmaService.kt$GemmaService$e: Exception</ID>
+    <ID>SwallowedException:GemmaService.kt$GemmaService$e: JsonSyntaxException</ID>
+    <ID>SwallowedException:InsightsViewModel.kt$InsightsViewModel$e: Exception</ID>
+    <ID>ThrowsCount:GemmaModelManager.kt$GemmaModelManager$suspend fun importModel(uri: Uri)</ID>
+    <ID>TooGenericExceptionCaught:DashboardViewModel.kt$DashboardViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DataExporter.kt$DataExporter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GemmaService.kt$GemmaService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:InsightsViewModel.kt$InsightsViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:OCRService.kt$OCRService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ScanViewModel.kt$ScanViewModel$e: Exception</ID>
+    <ID>TooManyFunctions:ExpenseDao.kt$ExpenseDao</ID>
+    <ID>UnusedImports:ExpenseCard.kt$import com.expenseai.ui.screens.review.SourceBadge</ID>
+    <ID>UnusedImports:InsightsScreen.kt$import androidx.compose.ui.graphics.Color</ID>
+    <ID>UnusedImports:ModelStatusIndicator.kt$import androidx.compose.ui.graphics.Color</ID>
+    <ID>UnusedImports:MonthSelector.kt$import androidx.compose.ui.unit.dp</ID>
+    <ID>UnusedImports:PendingReviewSheet.kt$import androidx.compose.material.icons.filled.Check</ID>
+    <ID>UnusedImports:PendingReviewSheet.kt$import androidx.compose.material.icons.filled.Close</ID>
+    <ID>UnusedImports:SecurityManager.kt$import android.provider.Settings</ID>
+    <ID>UnusedImports:SourcesScreen.kt$import androidx.compose.foundation.layout.fillMaxHeight</ID>
+    <ID>UnusedImports:SourcesScreen.kt$import androidx.compose.material3.Card</ID>
+    <ID>UnusedImports:SourcesScreen.kt$import androidx.compose.material3.CardDefaults</ID>
+    <ID>UnusedParameter:AppModule.kt$AppModule$context: Context</ID>
+    <ID>UnusedPrivateProperty:ExpenseCard.kt$val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))</ID>
+    <ID>UnusedPrivateProperty:Theme.kt$private val LightColorScheme = lightColorScheme( primary = Color(0xFF2D6A4F), onPrimary = Color.White, primaryContainer = Color(0xFFB7E4C7), onPrimaryContainer = Color(0xFF002114), secondary = Color(0xFF4A6741), onSecondary = Color.White, secondaryContainer = Color(0xFFCCEDBD), onSecondaryContainer = Color(0xFF082004), tertiary = Color(0xFF3B6470), onTertiary = Color.White, tertiaryContainer = Color(0xFFBFEAF7), onTertiaryContainer = Color(0xFF001F27), background = Color(0xFFF8FAF5), onBackground = Color(0xFF1A1C19), surface = Color(0xFFF8FAF5), onSurface = Color(0xFF1A1C19), surfaceVariant = Color(0xFFDDE5D9), onSurfaceVariant = Color(0xFF424940), error = Color(0xFFBA1A1A), onError = Color.White, outline = Color(0xFF72796F) )</ID>
+    <ID>UseCheckOrError:GemmaModelManager.kt$GemmaModelManager$throw IllegalStateException("Unable to open the selected model file.")</ID>
+    <ID>UseRequire:GemmaModelManager.kt$GemmaModelManager$throw IllegalArgumentException( "Unsupported model format. Use ${supportedExtensions.joinToString()} files." )</ID>
+    <ID>WildcardImport:DashboardViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:EmailParserTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ExpenseDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:HistoryViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:InsightsViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:NavGraph.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:PendingExpenseDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:ProcessEmailUseCaseTest.kt$import io.mockk.*</ID>
+    <ID>WildcardImport:ProcessEmailUseCaseTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ProcessSmsUseCaseTest.kt$import io.mockk.*</ID>
+    <ID>WildcardImport:ProcessSmsUseCaseTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:SmsParserTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
