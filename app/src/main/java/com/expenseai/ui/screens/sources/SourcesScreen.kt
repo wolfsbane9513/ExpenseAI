@@ -68,12 +68,12 @@ fun SourcesScreen(viewModel: SourcesViewModel = hiltViewModel()) {
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Email receipts",
+                        text = "Email and SMS receipts",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "Share any receipt email to ExpenseAI to stage it for review.",
+                        text = "Share a receipt email or transaction SMS to ExpenseAI to stage it for review.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

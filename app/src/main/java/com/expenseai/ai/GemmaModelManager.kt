@@ -28,10 +28,11 @@ class GemmaModelManager @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     private val modelDir = File(context.filesDir, "gemma_model")
+    private val supportedExtensions = listOf(".litertlm", ".task", ".bin", ".tflite")
 
     fun getModelPath(): String? {
         val modelFile = modelDir.listFiles()?.find {
-            it.name.endsWith(".bin") || it.name.endsWith(".tflite")
+            supportedExtensions.any { extension -> it.name.endsWith(extension, ignoreCase = true) }
         }
         return modelFile?.absolutePath
     }
@@ -47,4 +48,6 @@ class GemmaModelManager @Inject constructor(
         if (!modelDir.exists()) modelDir.mkdirs()
         return modelDir
     }
+
+    fun supportedModelFormats(): List<String> = supportedExtensions
 }

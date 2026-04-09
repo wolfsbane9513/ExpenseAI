@@ -6,7 +6,7 @@ import com.expenseai.data.local.PendingExpenseDao
 import com.expenseai.data.local.PendingExpenseEntity
 import com.expenseai.data.repository.ExpenseRepository
 import com.expenseai.domain.model.Expense
-import com.expenseai.domain.usecase.ProcessEmailUseCase
+import com.expenseai.domain.usecase.ProcessSharedTextUseCase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class ReviewViewModel @Inject constructor(
     private val pendingDao: PendingExpenseDao,
     private val repository: ExpenseRepository,
-    private val processEmailUseCase: ProcessEmailUseCase
+    private val processSharedTextUseCase: ProcessSharedTextUseCase
 ) : ViewModel() {
 
     private val gson = Gson()
@@ -41,9 +41,9 @@ class ReviewViewModel @Inject constructor(
         }
     }
 
-    fun processSharedEmail(body: String, subject: String) {
+    fun processSharedText(body: String, subject: String) {
         viewModelScope.launch {
-            processEmailUseCase.execute(body = body, subject = subject)
+            processSharedTextUseCase.execute(body = body, subject = subject)
         }
     }
 

@@ -36,7 +36,7 @@ class GemmaService @Inject constructor(
                 if (modelPath == null) {
                     modelManager.updateStatus(
                         ModelStatus.NOT_DOWNLOADED,
-                        "Model not found. Place Gemma 4 E2B .bin file in app files/gemma_model/"
+                        "Model not found. Add a MediaPipe-compatible Gemma model (.litertlm or .task) to app files/gemma_model/."
                     )
                     return@withContext
                 }

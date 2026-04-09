@@ -43,12 +43,12 @@ class ShareActivity : ComponentActivity() {
                 val pendingExpenses by viewModel.pendingExpenses.collectAsStateWithLifecycle()
 
                 LaunchedEffect(sharedText, subject) {
-                    viewModel.processSharedEmail(body = sharedText, subject = subject)
+                    viewModel.processSharedText(body = sharedText, subject = subject)
                 }
 
                 Scaffold(
                     topBar = {
-                        TopAppBar(title = { Text("Review Shared Receipt") })
+                        TopAppBar(title = { Text("Review Shared Transaction") })
                     }
                 ) { padding ->
                     if (pendingExpenses.isEmpty()) {
