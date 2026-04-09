@@ -20,7 +20,7 @@ ExpenseAI is an Android expense-tracking app built with Jetpack Compose, Hilt, R
 - Category totals
 - Recent expenses
 - On-device AI model status indicator
-- In-app Gemma model import, replace, and removal controls
+- In-app Gemma model install, replace, and removal controls
 
 ### Scan
 
@@ -147,7 +147,15 @@ The app looks for a local model file inside:
 <app files dir>/gemma_model/
 ```
 
-Users can import a supported bundle directly from the dashboard. The app copies the selected model into its private `gemma_model` directory and then attempts to initialize MediaPipe inference.
+Users can install a supported bundle directly from the dashboard. Today that install flow uses Android's document picker to bring the model into the app's private `gemma_model` directory, then immediately attempts to initialize MediaPipe inference.
+
+The intended product direction is a hosted install experience:
+
+- Surface an `Install AI Model` action in the app
+- Download a signed model bundle from your own backend or CDN
+- Verify checksum or signature before activation
+- Store the bundle in app-private storage
+- Reinitialize Gemma automatically so receipt parsing, SMS review, and insights can use the model
 
 If no compatible model is present, the app falls back to deterministic parsing and categorization heuristics.
 
@@ -177,7 +185,7 @@ Current pipeline areas include:
 - Instrumented tests
 - Security scanning
 
-The branch work in this repo includes a recent lint cleanup so `./gradlew lintDebug` passes locally again. CI is also configured to run on feature-branch pushes for earlier feedback before PR creation.
+The branch work in this repo includes a recent lint cleanup so `./gradlew lintDebug` passes locally again. CI is also configured to run on feature-branch pushes for earlier feedback before PR creation. The heavier jobs (`instrumented-tests` and `security-scan`) stay informational on feature-branch pushes, while remaining blocking on pull requests and protected branches.
 
 ## Known limitations
 

@@ -27,24 +27,28 @@ private val LightColorScheme = lightColorScheme(
     onError = Color.White,
     outline = Color(0xFF72796F)
 )
-
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF059669),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFF064E3B),
-    onPrimaryContainer = Color(0xFFD1FAE5),
-    secondary = Color(0xFF0EA5E9),
-    onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFF0C4A6E),
-    onSecondaryContainer = Color(0xFFE0F2FE),
-    background = Color(0xFF0F172A),
-    onBackground = Color(0xFFF1F5F9),
-    surface = Color(0xFF1E293B),
-    onSurface = Color(0xFFF1F5F9),
-    surfaceVariant = Color(0xFF334155),
-    onSurfaceVariant = Color(0xFF94A3B8),
-    error = Color(0xFFDC2626),
-    onError = Color(0xFFFFFFFF)
+    primary = Color(0xFF00FF9D), // Electric Emerald
+    onPrimary = Color.Black,
+    primaryContainer = Color(0xFF003320),
+    onPrimaryContainer = Color(0xFF00FF9D),
+    secondary = Color(0xFF00D2FF), // Cyber Blue
+    onSecondary = Color.Black,
+    secondaryContainer = Color(0xFF002533),
+    onSecondaryContainer = Color(0xFF00D2FF),
+    tertiary = Color(0xFFBD00FF), // Neon Violet
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFF240033),
+    onTertiaryContainer = Color(0xFFBD00FF),
+    background = Color(0xFF000000), // True Black
+    onBackground = Color(0xFFFFFFFF),
+    surface = Color(0xFF0A0A0A), // Deep Zinc
+    onSurface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFF121212),
+    onSurfaceVariant = Color(0xFF666666),
+    outline = Color(0xFF1A1A1A),
+    error = Color(0xFFFF3B30),
+    onError = Color.White
 )
 
 @Composable

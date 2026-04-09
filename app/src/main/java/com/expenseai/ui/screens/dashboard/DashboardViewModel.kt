@@ -10,6 +10,7 @@ import com.expenseai.data.local.CategoryTotal
 import com.expenseai.data.repository.ExpenseRepository
 import com.expenseai.domain.model.Expense
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.YearMonth
@@ -27,6 +28,7 @@ data class DashboardUiState(
 )
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class DashboardViewModel @Inject constructor(
     private val repository: ExpenseRepository,
     private val gemmaService: GemmaService,

@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.kapt")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("io.gitlab.arturbosch.detekt")
@@ -94,6 +95,10 @@ dependencyCheck {
     formats = listOf("HTML", "JSON")
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
     // Compose BOM
     implementation(platform("androidx.compose:compose-bom:2024.02.00"))
@@ -125,7 +130,7 @@ dependencies {
 
     // Hilt DI
     implementation("com.google.dagger:hilt-android:2.50")
-    ksp("com.google.dagger:hilt-compiler:2.50")
+    kapt("com.google.dagger:hilt-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Coroutines
@@ -171,5 +176,5 @@ dependencies {
 
     // Hilt for instrumented tests
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.50")
-    kspAndroidTest("com.google.dagger:hilt-compiler:2.50")
+    kaptAndroidTest("com.google.dagger:hilt-compiler:2.50")
 }

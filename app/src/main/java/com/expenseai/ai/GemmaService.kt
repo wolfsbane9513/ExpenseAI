@@ -36,7 +36,7 @@ class GemmaService @Inject constructor(
                 if (modelPath == null) {
                     modelManager.updateStatus(
                         ModelStatus.NOT_DOWNLOADED,
-                        "Model not found. Add a MediaPipe-compatible Gemma model (.litertlm or .task) to app files/gemma_model/."
+                        "No AI model is installed yet. Install a MediaPipe-compatible Gemma bundle (.litertlm, .task, .bin, or .tflite) to enable on-device intelligence."
                     )
                     return@withContext
                 }
