@@ -1,7 +1,10 @@
 package com.expenseai.ui.screens.scan
 
-import android.graphics.BitmapFactory
+import android.Manifest
+import android.content.ActivityNotFoundException
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -19,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.expenseai.domain.model.DEFAULT_CATEGORIES
@@ -33,7 +37,6 @@ fun ScanReceiptScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    // Camera capture
     var tempImageUri by remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
@@ -43,7 +46,32 @@ fun ScanReceiptScreen(
         }
     }
 
-    // Gallery picker
+    fun launchCameraCapture() {
+        try {
+            val imageFile = File(context.cacheDir, "receipt_${System.currentTimeMillis()}.jpg")
+            tempImageUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileProvider",
+                imageFile
+            )
+            cameraLauncher.launch(tempImageUri!!)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(context, "No camera app is available on this device.", Toast.LENGTH_SHORT).show()
+        } catch (_: SecurityException) {
+            Toast.makeText(context, "Camera permission is required to take a photo.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            launchCameraCapture()
+        } else {
+            Toast.makeText(context, "Camera permission is required to take a photo.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
@@ -87,13 +115,16 @@ fun ScanReceiptScreen(
 
                     Button(
                         onClick = {
-                            val imageFile = File(context.cacheDir, "receipt_${System.currentTimeMillis()}.jpg")
-                            tempImageUri = FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.fileProvider",
-                                imageFile
-                            )
-                            cameraLauncher.launch(tempImageUri!!)
+                            if (
+                                ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                launchCameraCapture()
+                            } else {
+                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
