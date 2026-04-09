@@ -1,10 +1,13 @@
 package com.expenseai.ai
 
 import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.io.FileOutputStream
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,4 +53,46 @@ class GemmaModelManager @Inject constructor(
     }
 
     fun supportedModelFormats(): List<String> = supportedExtensions
+
+    fun getModelFileName(): String? = getModelPath()?.let { File(it).name }
+
+    fun getImportSummary(): String =
+        "Import a MediaPipe-compatible Gemma bundle (${supportedExtensions.joinToString()}) into app storage. Models are too large to package inside the APK."
+
+    suspend fun importModel(uri: Uri) {
+        updateStatus(ModelStatus.DOWNLOADING, "Importing model into app storage…")
+
+        val displayName = resolveDisplayName(uri)
+            ?: throw IllegalArgumentException("Unable to determine the selected file name.")
+        if (supportedExtensions.none { displayName.endsWith(it, ignoreCase = true) }) {
+            throw IllegalArgumentException("Unsupported model format. Use ${supportedExtensions.joinToString()} files.")
+        }
+
+        val safeName = displayName.replace(Regex("[^A-Za-z0-9._-]"), "_")
+        val targetDir = getModelDirectory()
+        targetDir.listFiles()?.forEach { existing -> existing.delete() }
+
+        val targetFile = File(targetDir, safeName)
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(targetFile).use { output ->
+                input.copyTo(output)
+            }
+        } ?: throw IllegalStateException("Unable to open the selected model file.")
+    }
+
+    fun clearModel() {
+        getModelDirectory().listFiles()?.forEach { it.delete() }
+        updateStatus(ModelStatus.NOT_DOWNLOADED, "Model removed from device storage.")
+    }
+
+    private fun resolveDisplayName(uri: Uri): String? {
+        context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+            ?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (columnIndex >= 0) return cursor.getString(columnIndex)
+                }
+            }
+        return uri.lastPathSegment?.substringAfterLast('/')
+    }
 }

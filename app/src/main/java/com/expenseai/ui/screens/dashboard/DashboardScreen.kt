@@ -4,8 +4,13 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,12 +38,21 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val modelPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let(viewModel::importModel)
+    }
+
     DashboardContent(
         uiState = uiState,
         onPreviousMonth = viewModel::previousMonth,
         onNextMonth = viewModel::nextMonth,
         onAddExpense = viewModel::addExpense,
-        onScanClick = onScanClick
+        onScanClick = onScanClick,
+        onImportModel = { modelPickerLauncher.launch(arrayOf("*/*")) },
+        onRemoveModel = viewModel::removeModel,
+        modelImportSummary = viewModel.getModelImportSummary()
     )
 }
 
@@ -49,7 +63,10 @@ fun DashboardContent(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onAddExpense: (String, Double, String, String) -> Unit,
-    onScanClick: () -> Unit = {}
+    onScanClick: () -> Unit = {},
+    onImportModel: () -> Unit = {},
+    onRemoveModel: () -> Unit = {},
+    modelImportSummary: String = ""
 ) {
     val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
     var showAddDialog by remember { mutableStateOf(false) }
@@ -117,6 +134,15 @@ fun DashboardContent(
                         )
                     }
                 }
+            }
+
+            item {
+                ModelSetupCard(
+                    uiState = uiState,
+                    modelImportSummary = modelImportSummary,
+                    onImportModel = onImportModel,
+                    onRemoveModel = onRemoveModel
+                )
             }
 
             // Category Breakdown
@@ -220,6 +246,97 @@ fun DashboardContent(
                 showAddDialog = false
             }
         )
+    }
+}
+
+@Composable
+private fun ModelSetupCard(
+    uiState: DashboardUiState,
+    modelImportSummary: String,
+    onImportModel: () -> Unit,
+    onRemoveModel: () -> Unit
+) {
+    val isBusy = uiState.modelStatus == com.expenseai.ai.ModelStatus.LOADING ||
+        uiState.modelStatus == com.expenseai.ai.ModelStatus.DOWNLOADING
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Column {
+                    Text(
+                        text = "On-device AI",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = modelImportSummary,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            uiState.installedModelName?.let { modelName ->
+                Text(
+                    text = "Installed model: $modelName",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            uiState.modelMessage?.let { message ->
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (uiState.modelStatus == com.expenseai.ai.ModelStatus.ERROR) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onImportModel,
+                    enabled = !isBusy
+                ) {
+                    Icon(Icons.Default.UploadFile, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(if (uiState.installedModelName == null) "Import Model" else "Replace Model")
+                }
+                if (uiState.installedModelName != null) {
+                    OutlinedButton(
+                        onClick = onRemoveModel,
+                        enabled = !isBusy
+                    ) {
+                        Icon(Icons.Default.DeleteOutline, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Remove")
+                    }
+                }
+            }
+        }
     }
 }
 

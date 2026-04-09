@@ -1,5 +1,6 @@
 package com.expenseai.ui.screens.dashboard
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.expenseai.ai.GemmaModelManager
@@ -20,6 +21,8 @@ data class DashboardUiState(
     val categoryTotals: List<CategoryTotal> = emptyList(),
     val recentExpenses: List<Expense> = emptyList(),
     val modelStatus: ModelStatus = ModelStatus.NOT_DOWNLOADED,
+    val modelMessage: String? = null,
+    val installedModelName: String? = null,
     val showAddDialog: Boolean = false
 )
 
@@ -34,10 +37,11 @@ class DashboardViewModel @Inject constructor(
 
     val uiState: StateFlow<DashboardUiState> = combine(
         _currentMonth,
-        modelManager.status
-    ) { month, modelStatus ->
-        month to modelStatus
-    }.flatMapLatest { (month, modelStatus) ->
+        modelManager.status,
+        modelManager.errorMessage
+    ) { month, modelStatus, modelMessage ->
+        Triple(month, modelStatus, modelMessage)
+    }.flatMapLatest { (month, modelStatus, modelMessage) ->
         combine(
             repository.getMonthlyTotal(month.year, month.monthValue),
             repository.getCategoryTotals(month.year, month.monthValue),
@@ -48,7 +52,9 @@ class DashboardViewModel @Inject constructor(
                 totalSpending = total,
                 categoryTotals = categories,
                 recentExpenses = recent,
-                modelStatus = modelStatus
+                modelStatus = modelStatus,
+                modelMessage = modelMessage,
+                installedModelName = modelManager.getModelFileName()
             )
         }
     }.stateIn(
@@ -62,6 +68,23 @@ class DashboardViewModel @Inject constructor(
             gemmaService.initialize()
         }
     }
+
+    fun importModel(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                modelManager.importModel(uri)
+                gemmaService.initialize()
+            } catch (e: Exception) {
+                modelManager.updateStatus(ModelStatus.ERROR, e.message ?: "Failed to import model.")
+            }
+        }
+    }
+
+    fun removeModel() {
+        modelManager.clearModel()
+    }
+
+    fun getModelImportSummary(): String = modelManager.getImportSummary()
 
     fun previousMonth() {
         _currentMonth.update { it.minusMonths(1) }

@@ -20,6 +20,7 @@ ExpenseAI is an Android expense-tracking app built with Jetpack Compose, Hilt, R
 - Category totals
 - Recent expenses
 - On-device AI model status indicator
+- In-app Gemma model import, replace, and removal controls
 
 ### Scan
 
@@ -64,17 +65,17 @@ ExpenseAI is an Android expense-tracking app built with Jetpack Compose, Hilt, R
 
 ```text
 ExpenseAI/
-├── app/
-│   ├── src/main/java/com/expenseai/
-│   │   ├── ai/
-│   │   ├── data/
-│   │   ├── domain/
-│   │   ├── security/
-│   │   └── ui/
-│   └── src/main/res/
-├── .github/workflows/
-├── config/
-└── docs/
+|-- app/
+|   |-- src/main/java/com/expenseai/
+|   |   |-- ai/
+|   |   |-- data/
+|   |   |-- domain/
+|   |   |-- security/
+|   |   `-- ui/
+|   `-- src/main/res/
+|-- .github/workflows/
+|-- config/
+`-- docs/
 ```
 
 ## Build and run
@@ -146,11 +147,13 @@ The app looks for a local model file inside:
 <app files dir>/gemma_model/
 ```
 
+Users can import a supported bundle directly from the dashboard. The app copies the selected model into its private `gemma_model` directory and then attempts to initialize MediaPipe inference.
+
 If no compatible model is present, the app falls back to deterministic parsing and categorization heuristics.
 
 ### Recommended direction
 
-The current app code is aligned toward MediaPipe-compatible on-device model bundles rather than a hardcoded legacy Gemma binary path. For Android compatibility guidance, use Google’s official MediaPipe LLM Inference documentation:
+The current app code is aligned toward MediaPipe-compatible on-device model bundles rather than a hardcoded legacy Gemma binary path. For Android compatibility guidance, use Google's official MediaPipe LLM Inference documentation:
 
 - [MediaPipe LLM Inference for Android](https://ai.google.dev/edge/mediapipe/solutions/genai/llm_inference/android)
 
@@ -174,14 +177,14 @@ Current pipeline areas include:
 - Instrumented tests
 - Security scanning
 
-The branch work in this repo includes a recent lint cleanup so `./gradlew lintDebug` passes locally again.
+The branch work in this repo includes a recent lint cleanup so `./gradlew lintDebug` passes locally again. CI is also configured to run on feature-branch pushes for earlier feedback before PR creation.
 
 ## Known limitations
 
 - No model weights are committed to the repository
 - On-device Gemma performance depends heavily on the target hardware
 - SMS ingestion is currently share-based, not inbox-sync based
-- Some older text/icon encoding cleanup remains desirable in parts of the UI
+- The emulator is useful for app-flow validation, but not for proving real Gemma inference support
 
 ## Contributing
 
