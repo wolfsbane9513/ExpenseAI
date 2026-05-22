@@ -123,7 +123,7 @@ fun DashboardContent(
                             letterSpacing = 1.sp
                         )
                         Text(
-                            text = "ExpenseAI",
+                            text = "FIRE OS",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold
                         )

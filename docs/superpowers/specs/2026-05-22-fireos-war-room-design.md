@@ -254,3 +254,12 @@ This is a prototype; minimize standing cost and complexity.
 - Non-corpus asset growth uses a single default rate unless per-asset rate is provided.
 - "Lifestyle" recurring outflow is the bucket that confirmed expenses adjust; exact live
   linkage rule (replace vs. add) finalized during implementation.
+
+## 11. Known Issues (carry into follow-on plans)
+
+- **`derivePhases` bucketing vs. income growth:** the engine groups phases by rounding the
+  monthly investable to the nearest ₹1,000. With `IncomeStream.annualGrowthPct > 0`, income
+  drifts slowly across buckets and can produce spurious phase splits. Spec-1 tests don't use
+  growth so they pass; real user models likely will. The follow-on (persistence/UI) plan must
+  either widen/relativize the bucket or detect phases from structural events (income step, EMI
+  start, outflow end) rather than from the investable value alone.

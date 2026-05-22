@@ -19,9 +19,17 @@ data class ParsedReceipt(
     val items: List<String> = emptyList()
 )
 
+data class ParsedTransaction(
+    val vendor: String = "",
+    val amount: Double = 0.0,
+    val date: String = "",
+    val category: String = "other",
+    val items: List<String> = emptyList()
+)
+
 @Singleton
 class GemmaService @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val modelManager: GemmaModelManager
 ) {
     private val gson = Gson()
@@ -50,8 +58,8 @@ class GemmaService @Inject constructor(
                 llmInference = LlmInference.createFromOptions(context, options)
                 isInitialized = true
                 modelManager.updateStatus(ModelStatus.READY)
-            } catch (e: Exception) {
-                modelManager.updateStatus(ModelStatus.ERROR, e.message)
+            } catch (_: Exception) {
+                modelManager.updateStatus(ModelStatus.ERROR, "Initialization failed")
             }
         }
     }
@@ -69,7 +77,7 @@ class GemmaService @Inject constructor(
                     vendor = InputSanitizer.sanitizeVendorName(parsed.vendor),
                     category = InputSanitizer.validateCategory(parsed.category)
                 )
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 fallbackParseReceipt(sanitizedText)
             }
         }
@@ -86,7 +94,7 @@ class GemmaService @Inject constructor(
                 val validCategories = listOf("food", "transport", "utilities", "shopping",
                     "entertainment", "health", "travel", "other")
                 if (response in validCategories) response else fallbackCategorize(description)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 fallbackCategorize(description)
             }
         }
@@ -99,8 +107,38 @@ class GemmaService @Inject constructor(
             try {
                 val prompt = PromptTemplates.spendingInsightsPrompt(total, breakdown)
                 runInference(prompt)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 fallbackInsights(total, breakdown)
+            }
+        }
+    }
+
+    suspend fun parseSms(smsText: String): ParsedTransaction {
+        val sanitized = InputSanitizer.sanitizeTextInput(smsText)
+        if (!isInitialized) return fallbackParseTransaction(sanitized)
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val prompt = PromptTemplates.smsParsingPrompt(sanitized)
+                val response = runInference(prompt)
+                parseTransactionResponse(response)
+            } catch (_: Exception) {
+                fallbackParseTransaction(sanitized)
+            }
+        }
+    }
+
+    suspend fun parseEmail(emailText: String): ParsedTransaction {
+        val sanitized = InputSanitizer.sanitizeTextInput(emailText)
+        if (!isInitialized) return fallbackParseTransaction(sanitized)
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val prompt = PromptTemplates.emailParsingPrompt(sanitized)
+                val response = runInference(prompt)
+                parseTransactionResponse(response)
+            } catch (_: Exception) {
+                fallbackParseTransaction(sanitized)
             }
         }
     }
@@ -113,8 +151,18 @@ class GemmaService @Inject constructor(
             val cleaned = json.trim()
                 .removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
             gson.fromJson(cleaned, ParsedReceipt::class.java) ?: ParsedReceipt()
-        } catch (e: JsonSyntaxException) {
+        } catch (_: JsonSyntaxException) {
             ParsedReceipt()
+        }
+    }
+
+    private fun parseTransactionResponse(json: String): ParsedTransaction {
+        return try {
+            val cleaned = json.trim()
+                .removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+            gson.fromJson(cleaned, ParsedTransaction::class.java) ?: ParsedTransaction()
+        } catch (_: JsonSyntaxException) {
+            ParsedTransaction()
         }
     }
 
@@ -157,6 +205,20 @@ class GemmaService @Inject constructor(
             if (topCategory != null) append("Your biggest category was ${topCategory.key} at $percentage% of total spending. ")
             append("Consider reviewing your top spending categories for potential savings.")
         }
+    }
+
+    private fun fallbackParseTransaction(text: String): ParsedTransaction {
+        val amountRegex = Regex("""(?:Rs\.?|INR|[₹$])\s*(\d+(?:[.,]\d{0,2})?)""", RegexOption.IGNORE_CASE)
+        val amount = amountRegex.find(text)?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull() ?: 0.0
+        val vendorRegex = Regex("""(?:at|to|from)\s+([A-Z0-9\s*&]+?)(?:\s+on|\s+for|\s+ref|$)""", RegexOption.IGNORE_CASE)
+        val vendor = vendorRegex.find(text)?.groupValues?.get(1)?.trim() ?: "Unknown"
+        
+        return ParsedTransaction(
+            vendor = vendor,
+            amount = amount,
+            date = java.time.LocalDate.now().toString(),
+            category = fallbackCategorize(vendor)
+        )
     }
 
     private fun String.containsAny(vararg keywords: String): Boolean = keywords.any { this.contains(it) }
