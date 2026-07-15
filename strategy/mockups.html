@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseAI - Premium "CRED" Design Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff9d; /* Electric Emerald */
+            --secondary: #00d2ff; /* Cyber Blue */
+            --accent: #bd00ff; /* Neon Violet */
+            --bg: #000000;
+            --surface: #050505;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-dim: #666666;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #080808;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 60px 20px;
+            gap: 80px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .amount-text {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            border: 14px solid #1a1a1a;
+            border-radius: 64px;
+            position: relative;
+            background-color: var(--bg);
+            overflow: hidden;
+            box-shadow: 0 100px 150px -40px rgba(0, 0, 0, 1), 0 0 40px rgba(0, 255, 157, 0.02);
+        }
+
+        /* PREMIUM CARD STYLING */
+        .premium-card {
+            background: linear-gradient(145deg, #111111 0%, #050505 100%);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+        }
+
+        /* ICON BOX STYLING */
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .icon-box::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 255, 157, 0.08);
+            pointer-events: none;
+        }
+
+        /* BUTTONS */
+        .btn-pulse {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 20px;
+            border-radius: 24px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-pulse:active {
+            transform: scale(0.97);
+            background: #eeeeee;
+        }
+
+        /* NAV BAR */
+        .premium-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 110px;
+            background: linear-gradient(to top, #000 70%, transparent);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 24px 30px 24px;
+        }
+
+        .nav-item {
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #fff;
+        }
+
+        .active-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-top: 6px;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .scan-fab {
+            width: 68px;
+            height: 68px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(-20px);
+            box-shadow: 0 15px 30px rgba(255, 255, 255, 0.15);
+            color: #000;
+        }
+
+        /* ANIMATIONS */
+        @keyframes scanline {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .scanline {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 255, 157, 0.1), transparent);
+            animation: scanline 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes subtle-pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: subtle-pulse 2s infinite;
+        }
+
+        /* UTILS */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .letter-spacing-wide { letter-spacing: 0.2em; }
+        .letter-spacing-v-wide { letter-spacing: 0.4em; }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: THE CORE PULSE -->
+    <div class="flex flex-col items-center gap-10">
+        <span class="text-zinc-700 font-black uppercase letter-spacing-v-wide text-[10px]">Step 01 // Global Status</span>
+        <div class="phone-container">
+            <div class="px-8 pt-12 pb-6">
+                <div class="flex justify-between items-center mb-12">
+                    <h1 class="text-2xl font-black tracking-tighter italic">EXPENSE<span class="text-[var(--primary)]">AI</span></h1>
+                    <div class="flex gap-4">
+                        <div class="w-11 h-11 rounded-2xl border border-zinc-900 flex items-center justify-center">
+                            <i data-lucide="bell" size="20" class="text-zinc-600"></i>
+                        </div>
+                        <div class="w-11 h-11 rounded-2xl bg-zinc-900 border border-zinc-800 p-0.5">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="rounded-xl" alt="user">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN CARD -->
+                <div class="premium-card mb-12">
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="bg-emerald-500/5 border border-emerald-500/20 px-4 py-1.5 rounded-full flex items-center gap-3">
+                            <div class="status-dot"></div>
+                            <span class="text-[9px] font-black tracking-widest text-[var(--primary)] uppercase">Gemma v2 Active</span>
+                        </div>
+                        <i data-lucide="shield-check" size="16" class="text-zinc-700"></i>
+                    </div>
+                    
+                    <p class="text-zinc-600 text-[10px] font-black uppercase letter-spacing-wide mb-2">Total Expenses</p>
+                    <div class="flex items-baseline gap-3 mb-10">
+                        <span class="text-2xl font-bold text-zinc-500">₹</span>
+                        <h2 class="text-6xl font-black tracking-tighter amount-text">42,850.50</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="h-1 bg-zinc-900/50 rounded-full overflow-hidden">
+                            <div class="h-full bg-[var(--primary)] w-[68%] rounded-full shadow-[0_0_20px_rgba(0,255,157,0.4)]"></div>
+                        </div>
+                        <div class="flex justify-between text-[9px] font-black letter-spacing-wide text-zinc-600">
+                            <span>LIMIT REACHED 68%</span>
+                            <span class="text-zinc-400">₹ 65,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT PULSE -->
+                <div class="flex items-center gap-4 mb-8">
+                    <h3 class="text-[10px] font-black tracking-[0.3em] text-zinc-700 uppercase">Recent Pulse</h3>
+                    <div class="h-[1px] flex-1 bg-zinc-900/50"></div>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="flex items-center gap-6">
+                        <div class="icon-box text-[var(--primary)]">
+                            <i data-lucide="shopping-cart" size="24"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-[15px] tracking-tight mb-0.5">Apple Store</p>
+                            <p class="text-[9px] text-zinc-600 font-black letter-spacing-wide uppercase">Electronics • 14:20</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-[15px] tracking-tighter text-zinc-100">-₹12,400</p>
+                            <div class="flex justify-end gap-1.5 mt-1.5">
+                                <div class="w-1 h-1 rounded-full bg-zinc-800"></div>
+                                <div class="w-1 h-1 rounded-full bg-zinc-800"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-6">
+                        <div class="icon-box text-[var(--secondary)]">
+                            <i data-lucide="coffee" size="24"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-[15px] tracking-tight mb-0.5">Blue Tokai</p>
+                            <p class="text-[9px] text-zinc-600 font-black letter-spacing-wide uppercase">Dining • Yesterday</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-[15px] tracking-tighter text-zinc-100">-₹450</p>
+                            <div class="flex justify-end gap-1.5 mt-1.5">
+                                <div class="w-1 h-1 rounded-full bg-[var(--primary)]"></div>
+                                <div class="w-1 h-1 rounded-full bg-zinc-800"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NAV BAR -->
+            <div class="premium-nav">
+                <div class="nav-item active">
+                    <i data-lucide="grid" size="22"></i>
+                    <div class="active-dot"></div>
+                </div>
+                <div class="nav-item">
+                    <i data-lucide="bar-chart-3" size="22"></i>
+                </div>
+                <div class="scan-fab">
+                    <i data-lucide="maximize" size="26"></i>
+                </div>
+                <div class="nav-item">
+                    <i data-lucide="layers" size="22"></i>
+                </div>
+                <div class="nav-item">
+                    <i data-lucide="user" size="22"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: AI GATEKEEPER -->
+    <div class="flex flex-col items-center gap-10">
+        <span class="text-zinc-700 font-black uppercase letter-spacing-v-wide text-[10px]">Step 02 // Neural Validation</span>
+        <div class="phone-container">
+            <div class="flex flex-col items-center justify-center h-[480px] relative">
+                <div class="scanline"></div>
+                <div class="relative">
+                    <div class="w-72 h-72 rounded-full border border-zinc-900/50 flex items-center justify-center">
+                        <div class="w-60 h-60 rounded-full border border-zinc-800 flex items-center justify-center">
+                            <div class="w-48 h-48 rounded-full border-2 border-zinc-900 border-t-[var(--primary)] animate-spin" style="animation-duration: 3s"></div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-28 h-28 bg-zinc-950 rounded-[40px] flex items-center justify-center border border-zinc-800 shadow-[0_0_60px_rgba(0,255,157,0.15)]">
+                            <i data-lucide="cpu" class="text-[var(--primary)]" size="48"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-16 text-center">
+                    <h2 class="text-lg font-black letter-spacing-wide mb-2 uppercase">Neural Validation</h2>
+                    <p class="text-zinc-600 text-[10px] font-bold tracking-widest uppercase opacity-60">Analyzing data pulse locally</p>
+                </div>
+            </div>
+
+            <!-- REVIEW PANEL -->
+            <div class="absolute bottom-0 w-full bg-[#050505] border-t border-zinc-900 rounded-t-[60px] p-10 pt-4 shadow-[0_-40px_80px_rgba(0,0,0,0.9)]">
+                <div class="w-12 h-1.5 bg-zinc-900 rounded-full mx-auto mb-10"></div>
+                <div class="flex justify-between items-start mb-10">
+                    <div>
+                        <h3 class="text-xl font-black letter-spacing-wide mb-2 uppercase">Detection</h3>
+                        <div class="flex items-center gap-3">
+                            <span class="px-2.5 py-1 bg-violet-500/10 border border-violet-500/20 rounded text-[9px] font-black text-violet-400 tracking-widest uppercase">HDFC SMS</span>
+                            <span class="text-[9px] font-black text-zinc-700 tracking-widest">CONFIDENCE 98.4%</span>
+                        </div>
+                    </div>
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-center text-[var(--primary)]">
+                        <i data-lucide="check-circle" size="28"></i>
+                    </div>
+                </div>
+                <div class="space-y-6 mb-12">
+                    <div class="bg-zinc-900/30 border border-zinc-900 p-8 rounded-[40px] text-center">
+                        <div class="flex justify-center items-baseline gap-3 mb-1">
+                            <span class="text-2xl font-bold text-zinc-600">₹</span>
+                            <span class="text-5xl font-black tracking-tighter amount-text">2,450.00</span>
+                        </div>
+                        <p class="text-[9px] font-black tracking-widest text-zinc-700 uppercase">Validated Amount</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="bg-zinc-900/30 border border-zinc-900 p-6 rounded-[32px]">
+                            <p class="text-zinc-700 text-[9px] font-black tracking-widest uppercase mb-2">Merchant</p>
+                            <p class="font-bold tracking-tight">Starbucks</p>
+                        </div>
+                        <div class="bg-zinc-900/30 border border-zinc-900 p-6 rounded-[32px]">
+                            <p class="text-zinc-700 text-[9px] font-black tracking-widest uppercase mb-2">Category</p>
+                            <p class="font-bold tracking-tight text-[var(--primary)]">Dining</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-5">
+                    <button class="flex-1 py-5 border border-zinc-900 rounded-[28px] font-black text-[10px] letter-spacing-wide text-zinc-600 uppercase">Discard</button>
+                    <button class="btn-pulse flex-[2.5]">Confirm Pulse <i data-lucide="arrow-right" size="18"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

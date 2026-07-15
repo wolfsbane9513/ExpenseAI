@@ -28,7 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.expenseai.ui.screens.review.PendingReviewSheet
 import com.expenseai.ui.screens.review.ReviewViewModel
-import com.expenseai.ui.theme.ExpenseAITheme
+import com.expenseai.ui.theme.FIREOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,7 +45,7 @@ class ShareActivity : ComponentActivity() {
         val subject = intent?.getStringExtra(Intent.EXTRA_SUBJECT) ?: ""
 
         setContent {
-            ExpenseAITheme {
+            FIREOSTheme {
                 val viewModel: ReviewViewModel = hiltViewModel()
                 val pendingExpenses by viewModel.pendingExpenses.collectAsStateWithLifecycle()
                 val shareStagingState by viewModel.shareStagingState.collectAsStateWithLifecycle()
@@ -56,7 +56,7 @@ class ShareActivity : ComponentActivity() {
 
                 Scaffold(
                     topBar = {
-                        TopAppBar(title = { Text("Review Shared Transaction") })
+                        TopAppBar(title = { Text("Review FIRE Pulse") })
                     }
                 ) { padding ->
                     when {
@@ -89,7 +89,7 @@ class ShareActivity : ComponentActivity() {
                             ) {
                                 Text(
                                     text = shareStagingState.errorMessage
-                                        ?: "We couldn't stage this shared transaction.",
+                                        ?: "We couldn't stage this FIRE Pulse.",
                                     style = MaterialTheme.typography.bodyLarge,
                                     textAlign = TextAlign.Center
                                 )

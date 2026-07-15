@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIRE OS — App Build Plan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; padding: 1.5rem; font-size: 13px; line-height: 1.55; }
+h1 { font-size: 22px; font-weight: 500; }
+.tagline { font-size: 14px; color: #555; margin-top: 4px; margin-bottom: 2rem; font-style: italic; }
+.section { margin-bottom: 2rem; }
+.slabel { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; margin-bottom: 10px; }
+.card { background: #fff; border: 0.5px solid #e2dfd9; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 10px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.mc { background: #f3f1ec; border-radius: 8px; padding: 0.8rem 1rem; }
+.ml { font-size: 11px; color: #777; margin-bottom: 3px; }
+.mv { font-size: 15px; font-weight: 600; line-height: 1.3; }
+.ms { font-size: 11px; color: #aaa; margin-top: 3px; line-height: 1.4; }
+.row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid #f0ede7; }
+.row:last-child { border-bottom: none; }
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 5px; white-space: nowrap; letter-spacing: 0.03em; flex-shrink: 0; }
+.bd { background: #FCEBEB; color: #791F1F; }
+.bw { background: #FAEEDA; color: #633806; }
+.bg { background: #EAF3DE; color: #27500A; }
+.bi { background: #E6F1FB; color: #0C447C; }
+.bp { background: #F0EAF9; color: #4A1A7C; }
+.bk { background: #1a1a1a; color: #fff; }
+.alert { border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 10px; }
+.alert-blue { background: #E6F1FB; border: 0.5px solid #85B7EB; }
+.alert-green { background: #EAF3DE; border: 0.5px solid #97C459; }
+.alert-purple { background: #F0EAF9; border: 0.5px solid #C49AE8; }
+.alert-amber { background: #FAEEDA; border: 0.5px solid #E8B96A; }
+.alert-dark { background: #1e1e1e; border: 0.5px solid #333; }
+.phase-card { border-left: 3px solid; border-radius: 0 10px 10px 0; background: #fff; border-top: 0.5px solid #e2dfd9; border-right: 0.5px solid #e2dfd9; border-bottom: 0.5px solid #e2dfd9; padding: 1rem 1.2rem; margin-bottom: 10px; }
+.module { background: #f8f7f3; border: 0.5px solid #e2dfd9; border-radius: 10px; padding: 0.9rem 1.1rem; }
+.mod-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.mod-sub { font-size: 12px; color: #666; line-height: 1.5; }
+.divider { border: none; border-top: 0.5px solid #ede9e2; margin: 10px 0; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.tech-pill { display: inline-block; background: #1a1a1a; color: #e8e8e8; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 4px; margin: 2px 2px 2px 0; }
+.flow-step { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid #f0ede7; }
+.flow-num { width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; color: #fff; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.flow-step:last-child { border-bottom: none; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>FIRE OS — Personal Financial Intelligence System</h1>
+<p class="tagline">"Every rupee you spend and every minute you waste has a price — your FIRE date. Know it in real time."</p>
+
+<!-- WHAT IS THIS -->
+<div class="section">
+  <div class="slabel">What you're building</div>
+  <div class="alert alert-dark">
+    <p style="color:#e8e8e8; font-size:14px; font-weight:500; margin-bottom:8px;">Not a budgeting app. Not a net worth tracker. A financial operating system that enforces the FIRE goal on every decision in real time.</p>
+    <p style="color:#aaa; font-size:13px; line-height:1.65;">It reads your SMS, scans receipts, parses financial documents, tracks your time, and answers one question constantly: <em style="color:#e8e8e8;">"What does this decision cost you in days/months of FIRE?"</em> Buy a ₹5,000 gadget and it tells you that pushed your FIRE date by 3 days. Waste 2 hours on YouTube and it converts that to the TransmuteLabs revenue you didn't generate. Set a goal, and every action is judged against it.</p>
+  </div>
+</div>
+
+<!-- CORE MODULES -->
+<div class="section">
+  <div class="slabel">Five core modules</div>
+  <div class="grid2">
+
+    <div class="module">
+      <div class="mod-title">① FIRE Engine — The Goal Brain</div>
+      <div class="mod-sub">Stores your complete financial model (exactly what we built today). Knows your corpus target, phases, income, EMIs, SIP rates. Recalculates FIRE date on every new data point. This is the single source of truth everything else reports into.</div>
+      <div style="margin-top:8px;">
+        <span class="tech-pill">Supabase (state)</span>
+        <span class="tech-pill">Python (calc engine)</span>
+        <span class="tech-pill">FastAPI</span>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="mod-title">② Ingest Layer — Read Everything</div>
+      <div class="mod-sub">SMS reader (Android only), receipt scanner (camera), PDF/document ingestion (salary slips, bank statements, loan docs, offer letters). Every rupee in and out lands here first. Classifies automatically: income / expense / investment / EMI / one-time.</div>
+      <div style="margin-top:8px;">
+        <span class="tech-pill">Android SMS API</span>
+        <span class="tech-pill">Claude Vision (receipts)</span>
+        <span class="tech-pill">Claude Documents (PDFs)</span>
+        <span class="tech-pill">n8n (routing)</span>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="mod-title">③ Purchase Decision Engine</div>
+      <div class="mod-sub">Before you buy anything, ask the app. Input: item + price. Output: "This costs you X days of FIRE. At your current trajectory this is Y% of this month's investable surplus. Recommended: defer / approve / avoid." Also tracks what you actually bought and pushes FIRE date accordingly.</div>
+      <div style="margin-top:8px;">
+        <span class="tech-pill">Claude API (reasoning)</span>
+        <span class="tech-pill">FIRE Engine API</span>
+        <span class="tech-pill">React Native (UI)</span>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="mod-title">④ Time → Money Converter</div>
+      <div class="mod-sub">Tracks productive hours vs idle hours. Your hourly rate = target monthly income ÷ productive hours. Every wasted hour = a cost to the FIRE date. Integrates with calendar. If a 2-hour block has no productive tag by day-end, it's flagged. Weekly "time tax" report.</div>
+      <div style="margin-top:8px;">
+        <span class="tech-pill">Google Calendar MCP</span>
+        <span class="tech-pill">Manual log (quick tap)</span>
+        <span class="tech-pill">Claude API (weekly analysis)</span>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="mod-title">⑤ Financial Document Intelligence</div>
+      <div class="mod-sub">Feed any document — salary slip, bank statement, Form 16, loan statement, MF statement. It extracts, classifies, and updates the FIRE model automatically. The conversation we had today? This module does that continuously, without you asking.</div>
+      <div style="margin-top:8px;">
+        <span class="tech-pill">Claude Documents API</span>
+        <span class="tech-pill">LlamaIndex (parsing)</span>
+        <span class="tech-pill">ChromaDB (memory)</span>
+        <span class="tech-pill">n8n (pipeline)</span>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="mod-title">⑥ FIRE Dashboard + Advisor</div>
+      <div class="mod-sub">The screen you check daily. Current net worth, corpus trajectory, FIRE date (updates live), today's purchases and their FIRE cost, time efficiency score, monthly savings rate vs target. Plus a conversational advisor — ask anything, it knows your full context.</div>
+      <div style="margin-top:8px;">
+        <span class="tech-pill">React Native</span>
+        <span class="tech-pill">Recharts</span>
+        <span class="tech-pill">Claude API (advisor)</span>
+        <span class="tech-pill">Supabase (realtime)</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- THE SIGNATURE FEATURE -->
+<div class="section">
+  <div class="slabel">The signature interaction — "Should I buy this?"</div>
+  <div class="card">
+    <p style="font-weight:600; margin-bottom:12px;">The core UX loop that makes this different from every other app</p>
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div>You're about to buy something — a gadget, a dinner, a course. You open the app and either type it or photograph the price tag / cart screen.</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div>The app looks up your current phase, this month's investable surplus remaining, and your FIRE date.</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div><strong>It tells you the real cost:</strong> "₹8,500 iPhone case. At your current ₹5.11L/mo SIP rate, this delays your FIRE date by <strong>4.7 days</strong>. It's 1.66% of this month's surplus. You've already spent ₹42,000 on discretionary this month (82% of budget). Recommend: defer to next month."</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div>You tap Approve or Defer. If approved, it logs the spend, deducts from surplus, and updates the FIRE date on the dashboard.</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div>At month end, you see a "FIRE cost of lifestyle" report — total days pushed / pulled by your decisions this month.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TIME → MONEY MECHANIC -->
+<div class="section">
+  <div class="slabel">The time-to-money mechanic</div>
+  <div class="card">
+    <p style="font-weight:600; margin-bottom:10px;">Every hour has a price. Wasted hours push FIRE.</p>
+    <div class="grid2">
+      <div>
+        <div class="row"><span style="color:#666;">Your target monthly income (2028)</span><span style="font-weight:600;">₹10L/mo</span></div>
+        <div class="row"><span style="color:#666;">Productive hours / month (target)</span><span style="font-weight:600;">160 hrs</span></div>
+        <div class="row"><span style="color:#666;">Your effective hourly rate</span><span style="font-weight:600; color:#185FA5;">₹6,250/hr</span></div>
+        <div class="row"><span style="color:#666;">1 wasted evening (3 hrs)</span><span style="font-weight:600; color:#A32D2D;">₹18,750 = 2.1 FIRE days</span></div>
+        <div class="row"><span style="color:#666;">1 wasted weekend (16 hrs)</span><span style="font-weight:600; color:#A32D2D;">₹1L = 11 FIRE days</span></div>
+      </div>
+      <div style="font-size:13px; color:#555; line-height:1.7;">
+        <p style="margin-bottom:8px;">The app doesn't guilt-trip about leisure. It <strong>tags time</strong>:</p>
+        <p>🟢 <strong>Productive</strong> — deep work, TransmuteLabs, client calls, coding</p>
+        <p>🟡 <strong>Maintenance</strong> — family, health, sleep, commute (cost = 0)</p>
+        <p>🔴 <strong>Drain</strong> — passive scroll, unplanned TV, untagged blocks</p>
+        <p style="margin-top:8px;">Only Drain time has a FIRE cost. Maintenance is free. This makes it humane, not oppressive.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div class="section">
+  <div class="slabel">Technical architecture — built on what you already know</div>
+  <div class="card" style="margin-bottom:10px;">
+    <p style="font-weight:600; margin-bottom:12px;">System design — Classifier → Router → Skills → FIRE Engine (same pattern as Keystone)</p>
+    <div class="alert alert-dark" style="margin-bottom:12px; padding: 1rem 1.2rem;">
+      <p style="color:#aaa; font-size:12px; margin-bottom:8px;">Input sources → Ingest → Classify → Route → Skill → FIRE Engine → UI</p>
+      <p style="color:#e8e8e8; font-size:13px; font-family: monospace; line-height:2;">
+        SMS / Receipt Photo / PDF / Manual entry / Calendar<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↓ n8n webhook (ingest router)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↓ Claude Haiku (classifier: income / expense / investment / document / time-log)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↓ Skill dispatcher<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── Expense Skill → categorise + FIRE cost calc<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── Income Skill → update corpus projections<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── Document Skill → extract + update model<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── Purchase Decision Skill → approve / defer logic<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── Time Skill → productive hours → FIRE cost<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↓ FIRE Engine (Python) → recalculate date<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↓ Supabase (persist) → React Native (push notification + dashboard)
+      </p>
+    </div>
+    <div class="grid3">
+      <div class="mc">
+        <div class="ml">Frontend</div>
+        <div class="mv">React Native (Expo)</div>
+        <div class="ms">iOS + Android. Bolt for rapid prototyping. Vercel for web version.</div>
+      </div>
+      <div class="mc">
+        <div class="ml">Backend / Orchestration</div>
+        <div class="mv">n8n + FastAPI</div>
+        <div class="ms">n8n for all pipelines. FastAPI for the FIRE calc engine. Deployed on Railway or Render.</div>
+      </div>
+      <div class="mc">
+        <div class="ml">AI Layer</div>
+        <div class="mv">Claude API</div>
+        <div class="ms">Haiku for classification. Sonnet for decisions + document parsing. Your existing API access.</div>
+      </div>
+      <div class="mc">
+        <div class="ml">Database</div>
+        <div class="mv">Supabase</div>
+        <div class="ms">Postgres for transactions + FIRE state. Realtime subscriptions for dashboard live updates.</div>
+      </div>
+      <div class="mc">
+        <div class="ml">Document Memory</div>
+        <div class="mv">ChromaDB / pgvector</div>
+        <div class="ms">Store all ingested documents as vectors. Advisor has full context of every document ever fed.</div>
+      </div>
+      <div class="mc">
+        <div class="ml">SMS (Android)</div>
+        <div class="mv">Expo SMS / Native Module</div>
+        <div class="ms">Read SMS with permission. Parse bank alerts (HDFC, ICICI, SBI patterns). n8n processes raw text.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BUILD PHASES -->
+<div class="section">
+  <div class="slabel">Build roadmap — 4 phases</div>
+
+  <div class="phase-card" style="border-color:#185FA5;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+      <div><p style="font-weight:600;">Phase 1 — The Core (4–6 weeks)</p><p style="color:#666; font-size:12px; margin-top:2px;">Build the FIRE engine and manual input. Prove the core loop works.</p></div>
+      <span class="badge bi">MVP</span>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="row"><span>FIRE calculation engine (Python)</span><span class="badge bg">Week 1</span></div>
+        <div class="row"><span>Supabase schema: goals, transactions, corpus_state, fire_date</span><span class="badge bg">Week 1</span></div>
+        <div class="row"><span>FastAPI endpoints: /fire-date, /purchase-impact, /log-transaction</span><span class="badge bg">Week 2</span></div>
+        <div class="row"><span>React Native app: dashboard + manual transaction entry</span><span class="badge bi">Week 3–4</span></div>
+        <div class="row"><span>Purchase decision feature (type item + price → FIRE cost output)</span><span class="badge bi">Week 5</span></div>
+        <div class="row"><span>Seed with your exact FIRE model from today's session</span><span class="badge bw">Week 6</span></div>
+      </div>
+      <div class="alert alert-blue" style="font-size:12px;">
+        <strong>Deliverable:</strong> A working app where you manually log expenses and every entry shows its FIRE cost in days. The dashboard shows your live FIRE date. This alone is more useful than any existing app — and it takes 4–6 weeks of evenings using Bolt + your existing FastAPI/Supabase skills.
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-card" style="border-color:#854F0B;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+      <div><p style="font-weight:600;">Phase 2 — Ingest Intelligence (4–6 weeks)</p><p style="color:#666; font-size:12px; margin-top:2px;">Stop manual entry. Let the app read everything.</p></div>
+      <span class="badge bw">Automation</span>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="row"><span>SMS reader (Android, bank alert parsing)</span><span class="badge bw">Week 7–8</span></div>
+        <div class="row"><span>Receipt scanner (Claude Vision → structured data)</span><span class="badge bw">Week 8–9</span></div>
+        <div class="row"><span>PDF document ingestion (salary slips, statements)</span><span class="badge bw">Week 9–10</span></div>
+        <div class="row"><span>n8n pipeline: ingest → classify → route → FIRE engine</span><span class="badge bw">Week 10–11</span></div>
+        <div class="row"><span>Auto-categorisation with Claude Haiku classifier</span><span class="badge bw">Week 11–12</span></div>
+      </div>
+      <div class="alert alert-amber" style="font-size:12px;">
+        <strong>Deliverable:</strong> App that reads your ICICI SMS alerts automatically, scans receipts from your camera, and accepts dropped PDFs. 80%+ of transactions logged without you typing anything. FIRE date updates in near real-time.
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-card" style="border-color:#3B6D11;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+      <div><p style="font-weight:600;">Phase 3 — Time Intelligence (3–4 weeks)</p><p style="color:#666; font-size:12px; margin-top:2px;">Add the time dimension. Every hour tagged.</p></div>
+      <span class="badge bg">Differentiator</span>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="row"><span>Google Calendar integration (read blocks, request tags)</span><span class="badge bg">Week 13–14</span></div>
+        <div class="row"><span>Quick-tap time logger (Productive / Maintenance / Drain)</span><span class="badge bg">Week 14</span></div>
+        <div class="row"><span>Hourly rate calculator (links to income target)</span><span class="badge bg">Week 15</span></div>
+        <div class="row"><span>Weekly time report → FIRE cost of wasted hours</span><span class="badge bg">Week 16</span></div>
+      </div>
+      <div class="alert alert-green" style="font-size:12px;">
+        <strong>Deliverable:</strong> End-of-week notification: "This week you had 6.5 drain hours = ₹40,625 in unrealised value = 4.6 FIRE days lost." This feature alone is unlike anything on the market. It's the thing that makes people stop scrolling.
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-card" style="border-color:#4A1A7C;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+      <div><p style="font-weight:600;">Phase 4 — Advisor Intelligence (4–6 weeks)</p><p style="color:#666; font-size:12px; margin-top:2px;">The full conversational layer. Your financial brain on demand.</p></div>
+      <span class="badge bp">Full product</span>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="row"><span>ChromaDB / pgvector: all docs + transactions as memory</span><span class="badge bp">Week 17–18</span></div>
+        <div class="row"><span>Conversational advisor (Claude Sonnet + full context)</span><span class="badge bp">Week 18–20</span></div>
+        <div class="row"><span>"What if" simulator (what if I buy a car / change jobs)</span><span class="badge bp">Week 20–21</span></div>
+        <div class="row"><span>Goal conflict detector (new goal vs FIRE date)</span><span class="badge bp">Week 21–22</span></div>
+        <div class="row"><span>Monthly FIRE report (auto-generated, shareable)</span><span class="badge bp">Week 22</span></div>
+      </div>
+      <div class="alert alert-purple" style="font-size:12px;">
+        <strong>Deliverable:</strong> Ask "Should I buy a car next year?" and it runs the full scenario: loan EMI impact, corpus depletion, FIRE date shift, and recommendation with alternatives. Exactly what we did manually today — automated and instant.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA MODEL -->
+<div class="section">
+  <div class="slabel">Core data model (Supabase schema)</div>
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <p style="font-weight:600; font-size:12px; margin-bottom:8px;">Key tables</p>
+        <div class="row"><span style="font-family:monospace; font-size:12px; color:#185FA5;">fire_goal</span><span style="color:#666; font-size:12px;">target_amount, target_date, current_corpus, fire_date_computed</span></div>
+        <div class="row"><span style="font-family:monospace; font-size:12px; color:#185FA5;">transactions</span><span style="color:#666; font-size:12px;">amount, type, category, fire_days_impact, source (sms/receipt/manual)</span></div>
+        <div class="row"><span style="font-family:monospace; font-size:12px; color:#185FA5;">income_streams</span><span style="color:#666; font-size:12px;">source, monthly_net, effective_from, type (salary/business/passive)</span></div>
+        <div class="row"><span style="font-family:monospace; font-size:12px; color:#185FA5;">liabilities</span><span style="color:#666; font-size:12px;">name, outstanding, emi, rate, tenure_remaining</span></div>
+        <div class="row"><span style="font-family:monospace; font-size:12px; color:#185FA5;">time_logs</span><span style="color:#666; font-size:12px;">date, hours, tag (productive/maintenance/drain), fire_cost_computed</span></div>
+        <div class="row"><span style="font-family:monospace; font-size:12px; color:#185FA5;">documents</span><span style="color:#666; font-size:12px;">type, extracted_data, embedding_id, processed_at</span></div>
+        <div class="row"><span style="font-family:monospace; font-size:12px; color:#185FA5;">purchase_decisions</span><span style="color:#666; font-size:12px;">item, amount, fire_days_cost, decision (approved/deferred), outcome</span></div>
+      </div>
+      <div>
+        <p style="font-weight:600; font-size:12px; margin-bottom:8px;">The FIRE date computation (runs on every write)</p>
+        <div class="alert alert-dark" style="padding:1rem;">
+          <p style="color:#aaa; font-size:11px; margin-bottom:6px;">Trigger: any transaction, income change, or goal update</p>
+          <p style="color:#e8e8e8; font-size:12px; font-family:monospace; line-height:1.8;">
+            monthly_investable =<br>
+            &nbsp;&nbsp;total_income - fixed_outflows - lifestyle<br><br>
+            corpus_at_target_date =<br>
+            &nbsp;&nbsp;FV(current_corpus, rate, months) +<br>
+            &nbsp;&nbsp;FV_SIP(monthly_investable, rate, months)<br><br>
+            if corpus_at_target_date >= fire_target:<br>
+            &nbsp;&nbsp;binary_search → find exact FIRE date<br>
+            else:<br>
+            &nbsp;&nbsp;project forward until corpus >= target
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT MAKES IT DIFFERENT -->
+<div class="section">
+  <div class="slabel">Why this is a real product, not just a personal tool</div>
+  <div class="grid3">
+    <div class="module">
+      <div class="mod-title">vs. INDmoney / ET Money</div>
+      <div class="mod-sub">They track what you have. This tells you what every decision costs in FIRE time. They're rear-view mirrors. This is a windscreen with a GPS that re-routes on every turn.</div>
+    </div>
+    <div class="module">
+      <div class="mod-title">vs. YNAB / Walnut</div>
+      <div class="mod-sub">They track budget categories. This tracks FIRE days. ₹500 dinner doesn't feel meaningful. "That dinner cost you 1.4 hours of FIRE" does. The unit of measurement is the differentiator.</div>
+    </div>
+    <div class="module">
+      <div class="mod-title">vs. CFP / human advisor</div>
+      <div class="mod-sub">A CFP updates your plan once a year. This updates it every time your salary SMS arrives, every time you scan a receipt, every time you log a decision. Always current, no appointment needed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT NAME + POSITIONING -->
+<div class="section">
+  <div class="slabel">Product positioning — if you launch this</div>
+  <div class="alert alert-purple">
+    <p style="font-weight:600; color:#4A1A7C; margin-bottom:8px;">This is TransmuteLabs Product #1</p>
+    <div class="grid2">
+      <div style="color:#4A1A7C; font-size:13px; line-height:1.65;">
+        <p style="margin-bottom:6px;"><strong>Name:</strong> FIRE OS (or "Agni" for the Indian market)</p>
+        <p style="margin-bottom:6px;"><strong>Target user:</strong> Dual-income DINK/DINKY households in India, 30–40, ₹25–100L combined income, with a FIRE goal but no system to track it in real time.</p>
+        <p style="margin-bottom:6px;"><strong>Pricing:</strong> ₹999/mo or ₹7,999/yr. At 1,000 users = ₹83L ARR. That's your TransmuteLabs ₹1L/mo lever.</p>
+        <p><strong>Distribution:</strong> IIT Patna cohort (100–140 professionals per batch) is your launch audience. They're exactly this demographic.</p>
+      </div>
+      <div style="color:#4A1A7C; font-size:13px; line-height:1.65;">
+        <p style="margin-bottom:6px;"><strong>Sruthi's role:</strong> Azure ML + RAG = the document intelligence layer. She owns the extraction pipeline and the advisor memory architecture.</p>
+        <p style="margin-bottom:6px;"><strong>Ravi's role:</strong> Production engineering + the FIRE engine. You've built Keystone (same architecture) at Clear Street. This is the personal version.</p>
+        <p><strong>Moat:</strong> The FIRE model is deeply personalised (loan terms, EMI structure, possession dates, family goals). Generic apps can't replicate per-user financial models at this depth. That's your defensibility.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FIRST STEP -->
+<div class="section">
+  <div class="slabel">The single first step</div>
+  <div class="alert alert-green">
+    <p style="font-weight:600; color:#27500A; margin-bottom:8px;">Don't start with the app. Start with the data model.</p>
+    <div style="display:grid; gap:8px;">
+      <div style="display:flex; gap:10px; font-size:13px; color:#3B6D11;">
+        <strong style="min-width:18px;">1.</strong>
+        <span>Open Supabase. Create the <code style="background:#d4edbc; padding:1px 5px; border-radius:3px;">fire_goal</code> table with your exact numbers from today — corpus ₹90L, target ₹30 Cr, target date Dec 2031, monthly investable ₹5.11L, rate 13%.</span>
+      </div>
+      <div style="display:flex; gap:10px; font-size:13px; color:#3B6D11;">
+        <strong style="min-width:18px;">2.</strong>
+        <span>Write the Python FIRE date calculator (100 lines). Expose it as one FastAPI endpoint: POST /fire-date with a transaction payload, returns updated FIRE date. Test it with 5 sample transactions.</span>
+      </div>
+      <div style="display:flex; gap:10px; font-size:13px; color:#3B6D11;">
+        <strong style="min-width:18px;">3.</strong>
+        <span>Build one screen in Bolt/React Native: shows current FIRE date, corpus, and a text box to enter a purchase amount. See the FIRE date shift when you type ₹10,000. That's the moment the product becomes real.</span>
+      </div>
+      <div style="display:flex; gap:10px; font-size:13px; color:#3B6D11;">
+        <strong style="min-width:18px;">4.</strong>
+        <span>Use it yourself for 30 days. Let the friction of manual entry drive the automation roadmap. Every time you think "I wish this was automatic" — that's the next feature.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="font-size:11px; color:#bbb; text-align:center; margin-top:1rem;">FIRE OS build plan · TransmuteLabs · May 2026 · Architecture based on Keystone (Clear Street) pattern</p>
+
+</body>
+</html>

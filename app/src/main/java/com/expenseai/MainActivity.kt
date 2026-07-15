@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.expenseai.security.BiometricHelper
 import com.expenseai.ui.navigation.ExpenseNavHost
-import com.expenseai.ui.theme.ExpenseAITheme
+import com.expenseai.ui.theme.FIREOSTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -42,7 +42,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ExpenseAITheme {
+            FIREOSTheme {
                 var isAuthorized by remember {
                     mutableStateOf(!biometricHelper.shouldRequireAuth())
                 }
@@ -73,7 +73,7 @@ class MainActivity : FragmentActivity() {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Vault Locked",
+                    text = "FIRE OS Locked",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -90,7 +90,7 @@ class MainActivity : FragmentActivity() {
                         onError = { /* Handle error toast if needed */ }
                     )
                 }) {
-                    Text("Unlock with Biometrics")
+                    Text("Unlock FIRE OS")
                 }
             }
         }

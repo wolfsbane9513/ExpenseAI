@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -36,6 +37,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -65,7 +67,7 @@ import com.expenseai.domain.model.getCategoryById
 import com.expenseai.ui.components.ExpenseCard
 import com.expenseai.ui.components.ModelStatusIndicator
 import com.expenseai.ui.components.MonthSelector
-import com.expenseai.ui.theme.ExpenseAITheme
+import com.expenseai.ui.theme.FIREOSTheme
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.Locale
@@ -74,6 +76,7 @@ import java.util.Locale
 @Composable
 fun DashboardScreen(
     onScanClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -89,6 +92,7 @@ fun DashboardScreen(
         onNextMonth = viewModel::nextMonth,
         onAddExpense = viewModel::addExpense,
         onScanClick = onScanClick,
+        onSettingsClick = onSettingsClick,
         onImportModel = { modelPickerLauncher.launch(arrayOf("*/*")) },
         onRemoveModel = viewModel::removeModel,
         modelImportSummary = viewModel.getModelImportSummary()
@@ -103,6 +107,7 @@ fun DashboardContent(
     onNextMonth: () -> Unit,
     onAddExpense: (String, Double, String, String) -> Unit,
     onScanClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     onImportModel: () -> Unit = {},
     onRemoveModel: () -> Unit = {},
     modelImportSummary: String = ""
@@ -130,6 +135,9 @@ fun DashboardContent(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(Icons.Default.Settings, contentDescription = "FIRE Settings")
+                    }
                     ModelStatusIndicator(status = uiState.modelStatus)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
@@ -140,7 +148,7 @@ fun DashboardContent(
                 onClick = { showAddDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add expense")
+                Icon(Icons.Default.Add, contentDescription = "Record Pulse")
             }
         }
     ) { padding ->
@@ -172,7 +180,7 @@ fun DashboardContent(
             item {
                 DashboardHeroCard(
                     totalSpending = formatter.format(uiState.totalSpending),
-                    budgetSummary = "65% of monthly budget (Rs 22,000)"
+                    budgetSummary = "65% of monthly FIRE budget (Rs 22,000)"
                 )
             }
 
@@ -242,7 +250,7 @@ fun DashboardContent(
 
             item {
                 Text(
-                    text = "Recent Expenses",
+                    text = "FIRE Activity",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -269,7 +277,7 @@ fun DashboardContent(
                             verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
                             Text(
-                                text = "No expenses yet. Start with a quick scan or add one manually.",
+                                text = "No activity yet. Start with a Pulse Scan or record one manually.",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -279,14 +287,17 @@ fun DashboardContent(
                             ) {
                                 Icon(Icons.Default.AddAPhoto, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Scan your first receipt")
+                                Text("Pulse Scan")
                             }
                         }
                     }
                 }
             } else {
-                items(uiState.recentExpenses, key = { it.id }) { expense ->
-                    ExpenseCard(expense = expense)
+                items(uiState.recentExpenses, key = { it.expense.id }) { impact ->
+                    ExpenseCard(
+                        expense = impact.expense,
+                        fireImpactDays = impact.fireImpactDays
+                    )
                 }
             }
         }
@@ -391,7 +402,7 @@ private fun QuickActionsCard(
             ) {
                 Icon(Icons.Default.AddAPhoto, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Scan receipt")
+                Text("Pulse Scan")
             }
             Button(
                 onClick = onInstallModel,
@@ -557,7 +568,7 @@ private fun AddExpenseDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Expense") },
+        title = { Text("Record Pulse") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
@@ -629,7 +640,7 @@ private fun AddExpenseDialog(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DashboardPreview() {
-    ExpenseAITheme {
+    FIREOSTheme {
         DashboardContent(
             uiState = DashboardUiState(
                 totalSpending = 1250.0,
@@ -637,8 +648,14 @@ fun DashboardPreview() {
                 modelMessage = "Gemma is ready to parse receipts, SMS, and shared email text on device.",
                 installedModelName = "gemma-3n-it-int4.task",
                 recentExpenses = listOf(
-                    com.expenseai.domain.model.Expense(1, "Starbucks", 250.0, "food", "2024-03-20"),
-                    com.expenseai.domain.model.Expense(2, "Amazon", 1000.0, "shopping", "2024-03-19")
+                    ExpenseImpact(
+                        com.expenseai.domain.model.Expense(1, "Starbucks", 250.0, "food", "2024-03-20"),
+                        fireImpactDays = 2
+                    ),
+                    ExpenseImpact(
+                        com.expenseai.domain.model.Expense(2, "Amazon", 1000.0, "shopping", "2024-03-19"),
+                        fireImpactDays = 8
+                    )
                 )
             ),
             onPreviousMonth = {},

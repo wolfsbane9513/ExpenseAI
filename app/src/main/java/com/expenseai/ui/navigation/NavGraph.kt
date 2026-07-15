@@ -7,7 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -18,20 +23,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.expenseai.ui.screens.dashboard.DashboardContent
 import com.expenseai.ui.screens.dashboard.DashboardUiState
+import com.expenseai.ui.screens.firemodel.FireModelScreen
 import com.expenseai.ui.screens.history.HistoryScreen
 import com.expenseai.ui.screens.insights.InsightsScreen
 import com.expenseai.ui.screens.scan.ScanReceiptScreen
 import com.expenseai.ui.screens.sources.SourcesScreen
 import com.expenseai.ui.screens.sources.SourcesViewModel
-import com.expenseai.ui.theme.ExpenseAITheme
+import com.expenseai.ui.theme.FIREOSTheme
 import java.time.YearMonth
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    data object Dashboard : Screen("dashboard", "Dashboard", Icons.Default.Dashboard)
-    data object Scan      : Screen("scan",      "Scan",      Icons.Default.CameraAlt)
-    data object History   : Screen("history",   "History",   Icons.Default.History)
-    data object Insights  : Screen("insights",  "Insights",  Icons.Default.Analytics)
-    data object Sources   : Screen("sources",   "Sources",   Icons.Default.ReceiptLong)
+    data object Dashboard : Screen("dashboard", "War Room", Icons.Default.Dashboard)
+    data object Scan      : Screen("scan",      "Pulse Scan", Icons.Default.CameraAlt)
+    data object History   : Screen("history",   "Log",       Icons.Default.History)
+    data object Insights  : Screen("insights",  "Projections", Icons.Default.Analytics)
+    data object Sources   : Screen("sources",   "Intelligence", Icons.Default.AutoAwesome)
+    data object FireModel : Screen("fire_model", "Settings",  Icons.Default.Settings)
 }
 
 val bottomNavItems = listOf(
@@ -46,10 +53,6 @@ fun ExpenseNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // In preview mode, we might not have Hilt, so handle null or use a dummy
-    // However, hiltViewModel() usually requires a ViewModelStoreOwner.
-    // For Preview, we might need to skip this or provide a mock.
-    
     var pendingCount = 0
     if (!isShowingPreview) {
         val sourcesViewModel: SourcesViewModel = hiltViewModel()
@@ -58,7 +61,10 @@ fun ExpenseNavHost(
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp
+            ) {
                 bottomNavItems.forEach { screen ->
                     val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
                     NavigationBarItem(
@@ -71,8 +77,22 @@ fun ExpenseNavHost(
                                 Icon(screen.icon, contentDescription = screen.label)
                             }
                         },
-                        label = { Text(screen.label) },
+                        label = { 
+                            Text(
+                                text = screen.label,
+                                maxLines = 1,
+                                overflow = TextOverflow.Visible,
+                                softWrap = false,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 11.sp,
+                                    letterSpacing = (-0.5).sp,
+                                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                                )
+                            ) 
+                        },
                         selected = selected,
+                        alwaysShowLabel = true,
                         onClick = {
                             navController.navigate(screen.route) {
                                 popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -106,7 +126,8 @@ fun ExpenseNavHost(
                     )
                 } else {
                     com.expenseai.ui.screens.dashboard.DashboardScreen(
-                        onScanClick = { navController.navigate(Screen.Scan.route) }
+                        onScanClick = { navController.navigate(Screen.Scan.route) },
+                        onSettingsClick = { navController.navigate(Screen.FireModel.route) }
                     )
                 }
             }
@@ -121,6 +142,9 @@ fun ExpenseNavHost(
                     Text("Sources Screen Preview")
                 }
             }
+            composable(Screen.FireModel.route) {
+                FireModelScreen(onBack = { navController.popBackStack() })
+            }
         }
     }
 }
@@ -128,7 +152,7 @@ fun ExpenseNavHost(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AppPreview() {
-    ExpenseAITheme {
+    FIREOSTheme {
         ExpenseNavHost(isShowingPreview = true)
     }
 }

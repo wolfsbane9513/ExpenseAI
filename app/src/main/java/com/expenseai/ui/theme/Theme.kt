@@ -52,7 +52,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun ExpenseAITheme(content: @Composable () -> Unit) {
+fun FIREOSTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = DarkColorScheme,
         typography = Typography(),

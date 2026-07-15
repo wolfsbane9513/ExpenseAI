@@ -80,7 +80,7 @@ fun ScanReceiptScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Scan Receipt") })
+            TopAppBar(title = { Text("FIRE Scan") })
         }
     ) { padding ->
         Column(
@@ -106,7 +106,7 @@ fun ScanReceiptScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Scan a receipt to automatically extract expense details",
+                        text = "Scan a receipt to automatically extract expense details using FIRE OS intelligence",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -250,7 +250,7 @@ private fun ReviewForm(
     var expanded by remember { mutableStateOf(false) }
 
     Text(
-        "Review Parsed Receipt",
+        "Review FIRE Pulse",
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.SemiBold
     )

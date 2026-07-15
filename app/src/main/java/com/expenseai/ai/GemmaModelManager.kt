@@ -59,7 +59,7 @@ class GemmaModelManager @Inject constructor(
     fun getModelFileName(): String? = getModelPath()?.let { File(it).name }
 
     fun getImportSummary(): String =
-        "Install a MediaPipe-compatible Gemma bundle (${supportedExtensions.joinToString()}) into secure app storage. For production, host the bundle and deliver it at runtime instead of packaging it in the APK."
+        "Install a MediaPipe-compatible Gemma bundle (${supportedExtensions.joinToString()}) into FIRE OS secure storage. For production, host the bundle and deliver it at runtime instead of packaging it in the APK."
 
     suspend fun importModel(uri: Uri) {
         updateStatus(ModelStatus.DOWNLOADING, "Installing AI model into secure app storage...")

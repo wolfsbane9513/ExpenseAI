@@ -106,7 +106,7 @@ fun SourcesScreen(viewModel: SourcesViewModel = hiltViewModel()) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "$pendingCount EXPENSES PENDING",
+                        text = "$pendingCount PULSES PENDING",
                         fontWeight = FontWeight.Black,
                         style = MaterialTheme.typography.labelLarge,
                         letterSpacing = 1.sp
@@ -125,7 +125,7 @@ fun SourcesScreen(viewModel: SourcesViewModel = hiltViewModel()) {
 
             SourceCard(
                 title = "Receipt Sharing",
-                description = "Share PDF or image receipts from any app directly to ExpenseAI for parsing.",
+                description = "Share PDF or image receipts from any app directly to FIRE OS for parsing.",
                 icon = Icons.Default.UploadFile,
                 statusText = "Secure Gateway",
                 isEnabled = false,

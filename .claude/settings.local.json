@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/prakasra/.claude/plugins/marketplaces/ui-ux-pro-max-skill/**)",
+      "Bash(python3 src/ui-ux-pro-max/scripts/search.py \"expense tracker fintech personal finance AI mobile android\" --design-system -p \"ExpenseAI\" -f markdown)",
+      "Bash(python3 src/ui-ux-pro-max/scripts/search.py \"fintech expense tracking\" --domain color -n 3)",
+      "Bash(python3 src/ui-ux-pro-max/scripts/search.py \"mobile bottom nav dashboard cards\" --domain ux -n 5)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(mkdir -p ~/.config/superpowers/worktrees/ExpenseAI)",
+      "Bash(git worktree:*)",
+      "Read(//home/prakasra/.config/superpowers/worktrees/ExpenseAI/feature-sms-email-mediapipe/**)",
+      "Bash(./gradlew testDebugUnitTest)",
+      "Bash(git -C /mnt/c/Users/wolfs/OneDrive/Documents/ExpenseAI ls-files)",
+      "Bash(chmod +x:*)",
+      "Bash(gradle --version)",
+      "Bash(java -version)",
+      "Bash(echo \"Exit: $?\")",
+      "Read(//usr/lib/**)",
+      "Read(//usr/local/lib/**)",
+      "Read(//home/prakasra/.sdkman/candidates/**)",
+      "Bash(git:*)",
+      "Bash(python3 -)",
+      "Read(//mnt/c/Users/wolfs/Downloads/**)",
+      "Bash(ls -la fire40_complete_final.html FIRE_OS_CONTEXT.md)",
+      "Bash(ls -la Home_loan)",
+      "Bash(wc -l FIRE_OS_CONTEXT.md fire40_complete_final.html)",
+      "Bash(rtk ls *)",
+      "Bash(rtk git *)",
+      "Bash(rtk grep *)"
+    ]
+  }
+}

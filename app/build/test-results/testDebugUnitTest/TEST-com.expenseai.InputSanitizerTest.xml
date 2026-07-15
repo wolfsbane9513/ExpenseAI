@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.expenseai.InputSanitizerTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-04-09T04:07:17" hostname="WOLFSBANE" time="0.004">
+  <properties/>
+  <testcase name="sanitizeEmailText strips prompt injection markers" classname="com.expenseai.InputSanitizerTest" time="0.001"/>
+  <testcase name="sanitizeEmailText truncates to 2000 chars" classname="com.expenseai.InputSanitizerTest" time="0.001"/>
+  <testcase name="sanitizeSmsText strips control characters" classname="com.expenseai.InputSanitizerTest" time="0.0"/>
+  <testcase name="sanitizeEmailText strips HTML tags" classname="com.expenseai.InputSanitizerTest" time="0.001"/>
+  <testcase name="sanitizeSmsText strips prompt injection markers" classname="com.expenseai.InputSanitizerTest" time="0.0"/>
+  <testcase name="sanitizeSmsText truncates to 500 chars" classname="com.expenseai.InputSanitizerTest" time="0.0"/>
+  <testcase name="sanitizeSmsText strips HTML tags" classname="com.expenseai.InputSanitizerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

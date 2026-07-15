@@ -32,7 +32,7 @@ fun InsightsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Insights") })
+            TopAppBar(title = { Text("FIRE Insights") })
         }
     ) { padding ->
         Column(

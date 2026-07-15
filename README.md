@@ -1,207 +1,104 @@
-# ExpenseAI
+# FIRE OS (formerly ExpenseAI)
 
-ExpenseAI is an Android expense-tracking app built with Jetpack Compose, Hilt, Room, ML Kit OCR, and on-device Gemma support through MediaPipe LLM Inference. It is designed to capture expenses from receipt photos and shared text, then let the user review and confirm structured transactions before they are saved.
+FIRE OS is an on-device, privacy-first personal finance app for the **Financial
+Independence, Retire Early (FIRE)** community. It turns everyday transactions
+(SMS, email, receipts) into a live wealth projection and answers the one question
+that matters: **"what does this decision cost me in FIRE days?"**
 
-## What the app does
+All parsing, categorization, and projection run **locally** — no data leaves the
+device. Optional on-device Gemma inference handles the fuzzy parts; a pure-Kotlin
+engine does the math.
 
-- Track expenses by month, category, and recent activity
-- Scan paper receipts using the camera or gallery
-- Extract receipt text with ML Kit OCR
-- Stage shared receipt emails for review
-- Stage shared transaction SMS text for review without requesting inbox-level SMS access
-- Categorize expenses with heuristic fallback and optional on-device Gemma inference
-- Store expenses locally with Room
+## Key Features
 
-## Current feature set
+- **FIRE War Room** (Dashboard) — live view of corpus, net worth, and progress toward
+  financial independence.
+- **Projection engine** (Projections) — month-by-month simulation of your path to a
+  target corpus, with phase breakdowns, a net-worth breakdown at the target date, and
+  an honest "reframe" when the target isn't reachable on time.
+- **Intelligence hub** (Sources) — SMS, email, and receipt parsing staged as pending
+  expenses for one-tap review, deduplicated on ingest.
+- **FIRE-days impact** — model a one-time purchase and see how many days it pushes back
+  your FIRE date.
+- **Privacy first** — local-only Room database, biometric vault lock, encrypted
+  preferences, and on-device inference.
 
-### Dashboard
+## The FIRE Engine
 
-- Monthly total spending
-- Category totals
-- Recent expenses
-- On-device AI model status indicator
-- In-app Gemma model install, replace, and removal controls
+A dependency-free Kotlin engine (`domain/fire/`) simulates the corpus forward over a
+configurable horizon (default 360 months):
 
-### Scan
+- **Target corpus** — 25× annual retirement expenses, or an explicit target.
+- **Monthly cashflow** — income streams (with annual growth), recurring outflows, loan
+  EMIs (fully-amortizing), and one-time inflow/outflow events.
+- **Growth** — equity CAGR applied monthly (SIP convention); declining-balance loan
+  outstanding for net-worth accuracy.
+- **Outputs** — FIRE date, full trajectory, auto-derived phases, net-worth breakdown
+  (liquid corpus + non-corpus assets + property − loans), and reframe options
+  (extend the date / lower the target / add income).
 
-- Camera capture with runtime camera permission handling
-- Gallery import
-- OCR text extraction
-- Review and edit parsed expense data before saving
+Core math lives in `FireMath.kt`; simulation in `FireEngine.kt`; domain types in
+`FireModel.kt` / `FireResult.kt`. The engine has regression tests, including a
+"War Room" scenario derived from real financial documents.
 
-### Sources
+## Tech Stack
 
-- Shared email receipt intake
-- Shared SMS transaction intake through Android share intents
-- Pending review queue before confirm or reject
+- **UI** — Jetpack Compose (Material 3), dark-only fintech palette
+- **Architecture** — Clean Architecture (data / domain / ui) with Hilt DI
+- **Persistence** — Room (v3) with GSON serialization for FIRE model storage
+- **Intelligence** — MediaPipe LLM Inference running Gemma (on-device), with
+  rule-based fallbacks; ML Kit OCR for receipts
+- **Security** — Android Biometrics + Encrypted SharedPreferences; input sanitizer
+  for prompt-injection defense; root/debugger/emulator detection
 
-### History and Insights
+## Navigation
 
-- Expense list/history browsing
-- AI-assisted spending insight generation with fallback behavior when no local model is installed
+Five bottom-nav tabs plus Settings:
 
-## Tech stack
+| Tab | Screen | Purpose |
+|-----|--------|---------|
+| War Room | Dashboard | Live FIRE snapshot |
+| Pulse Scan | Scan | Camera + OCR receipt capture |
+| Log | History | Transaction history |
+| Projections | Insights | Engine output & trajectory |
+| Intelligence | Sources | SMS/email/receipt staging & review |
+| Settings | FireModel | Edit FIRE profile & assumptions |
 
-- Kotlin
-- Android Gradle Plugin 8.2.2
-- Jetpack Compose
-- Hilt
-- Room
-- ML Kit Text Recognition
-- MediaPipe `tasks-genai`
-- SQLCipher
-- Detekt
-- Android Lint
-- GitHub Actions
+## Project Structure
 
-## Requirements
-
-- Android Studio with the bundled JBR / Java 17
-- Android SDK 34
-- Minimum Android version: API 26
-- A connected emulator or Android device for runtime testing
-
-## Project structure
-
-```text
-ExpenseAI/
-|-- app/
-|   |-- src/main/java/com/expenseai/
-|   |   |-- ai/
-|   |   |-- data/
-|   |   |-- domain/
-|   |   |-- security/
-|   |   `-- ui/
-|   `-- src/main/res/
-|-- .github/workflows/
-|-- config/
-`-- docs/
+```
+app/src/main/java/com/expenseai/
+├── ai/            Gemma service, SMS/email parsers, OCR, prompt templates
+├── data/          Room DB, DAOs, repositories (expenses + FIRE model)
+├── domain/
+│   ├── fire/      FIRE engine, math, model, result types
+│   └── usecase/   Process SMS/email/receipt, categorize, insights
+├── security/      Biometric, encrypted prefs, sanitizer, integrity checks
+└── ui/            Compose screens, components, navigation, theme
 ```
 
-## Build and run
+Specs and plans live under `docs/superpowers/`.
 
-From the repo root:
+## Build & Run
+
+Standard Android/Gradle project. `minSdk 26`, `targetSdk 34`, Java 17.
 
 ```bash
-./gradlew assembleDebug
+./gradlew assembleDebug          # build
+./gradlew testDebugUnitTest      # engine + parser unit tests
+./gradlew connectedDebugAndroidTest   # instrumented tests (device/emulator)
 ```
 
-On Windows in this repo, builds have been run successfully with:
+The Gemma model file must be placed on-device (imported via the in-app flow into
+`filesDir/gemma_model/`); the app degrades to rule-based parsing when absent.
 
-```powershell
-$env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'
-$env:Path='C:\Program Files\Android\Android Studio\jbr\bin;' + $env:Path
-& 'C:\Program Files\Git\bin\bash.exe' ./gradlew assembleDebug
-```
+## Privacy
 
-Install the debug APK with adb:
+`allowBackup="false"`, `usesCleartextTraffic="false"`, biometric lock, and encrypted
+storage. No network calls for core functionality — projections and parsing are fully
+on-device.
 
-```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
-
-## Useful local commands
-
-```bash
-./gradlew assembleDebug
-./gradlew lintDebug
-./gradlew detekt
-./gradlew testDebugUnitTest
-./gradlew connectedDebugAndroidTest
-```
-
-## Emulator testing notes
-
-The app has been smoke-tested on an Android emulator using adb-driven flows:
-
-- Launch the app
-- Open each bottom-navigation tab
-- Verify camera permission prompt on first scan capture
-- Verify shared email text stages as an `Email` pending item
-- Verify shared SMS transaction text stages as an `SMS` pending item
-
-Example explicit share-intent test:
-
-```bash
-adb shell am start -n com.expenseai.debug/com.expenseai.ShareActivity \
-  --es android.intent.extra.SUBJECT Receipt \
-  --es android.intent.extra.TEXT Total:INR349,merchant:Zomato,2026-04-09,Order:ZX20260409
-```
-
-## On-device Gemma setup
-
-ExpenseAI supports on-device Gemma inference through MediaPipe LLM Inference.
-
-### Supported local model bundle formats
-
-- `.litertlm`
-- `.task`
-- `.bin`
-- `.tflite`
-
-### Where to place the model
-
-The app looks for a local model file inside:
-
-```text
-<app files dir>/gemma_model/
-```
-
-Users can install a supported bundle directly from the dashboard. Today that install flow uses Android's document picker to bring the model into the app's private `gemma_model` directory, then immediately attempts to initialize MediaPipe inference.
-
-The intended product direction is a hosted install experience:
-
-- Surface an `Install AI Model` action in the app
-- Download a signed model bundle from your own backend or CDN
-- Verify checksum or signature before activation
-- Store the bundle in app-private storage
-- Reinitialize Gemma automatically so receipt parsing, SMS review, and insights can use the model
-
-If no compatible model is present, the app falls back to deterministic parsing and categorization heuristics.
-
-### Recommended direction
-
-The current app code is aligned toward MediaPipe-compatible on-device model bundles rather than a hardcoded legacy Gemma binary path. For Android compatibility guidance, use Google's official MediaPipe LLM Inference documentation:
-
-- [MediaPipe LLM Inference for Android](https://ai.google.dev/edge/mediapipe/solutions/genai/llm_inference/android)
-
-## Security and privacy notes
-
-- The app does not request broad photo-library access for normal receipt import
-- The app does not request SMS inbox access for transaction parsing
-- Shared SMS handling is user-initiated through Android share intents
-- Pending transactions are reviewed before they become saved expenses
-- Local model integrity checking is included for on-device model files
-
-## CI
-
-GitHub Actions workflows live in `.github/workflows/`.
-
-Current pipeline areas include:
-
-- Lint and static analysis
-- Build
-- Unit tests
-- Instrumented tests
-- Security scanning
-
-The branch work in this repo includes a recent lint cleanup so `./gradlew lintDebug` passes locally again. CI is also configured to run on feature-branch pushes for earlier feedback before PR creation. The heavier jobs (`instrumented-tests` and `security-scan`) stay informational on feature-branch pushes, while remaining blocking on pull requests and protected branches.
-
-## Known limitations
-
-- No model weights are committed to the repository
-- On-device Gemma performance depends heavily on the target hardware
-- SMS ingestion is currently share-based, not inbox-sync based
-- The emulator is useful for app-flow validation, but not for proving real Gemma inference support
-
-## Contributing
-
-1. Create a feature branch from the current default branch
-2. Make focused commits
-3. Run lint and the most relevant test task locally
-4. Push the branch
-5. Open a pull request
-
-## License
-
-No license file is currently checked into this repository.
+---
+*Note: the package name `com.expenseai` is retained for stability and migration consistency.*
+</content>
+</invoke>

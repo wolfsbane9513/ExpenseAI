@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import com.expenseai.domain.model.Expense
 import com.expenseai.domain.model.getCategoryById
 import com.expenseai.ui.screens.review.SourceBadge
+import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -21,6 +23,7 @@ import java.util.Locale
 fun ExpenseCard(
     expense: Expense,
     modifier: Modifier = Modifier,
+    fireImpactDays: Long? = null,
     onClick: () -> Unit = {}
 ) {
     val category = getCategoryById(expense.category)
@@ -89,6 +92,23 @@ fun ExpenseCard(
                         fontWeight = FontWeight.Black,
                         letterSpacing = 1.sp
                     )
+                    
+                    if (fireImpactDays != null && fireImpactDays > 0) {
+                        Surface(
+                            color = Color(0xFFFF5252).copy(alpha = 0.1f),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
+                            border = androidx.compose.foundation.BorderStroke(0.5.dp, Color(0xFFFF5252).copy(alpha = 0.2f))
+                        ) {
+                            Text(
+                                text = "+$fireImpactDays FIRE DAYS",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFFF5252),
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                letterSpacing = 0.5.sp
+                            )
+                        }
+                    }
                 }
             }
 
