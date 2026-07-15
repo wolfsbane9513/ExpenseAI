@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.expenseai.data.repository.FireRepository
 import com.expenseai.domain.fire.FireModel
 import com.expenseai.domain.fire.FireProfile
+import com.expenseai.domain.fire.Scenario
+import com.expenseai.domain.fire.ScenarioKind
 import com.expenseai.domain.fire.TargetMode
+import com.expenseai.domain.fire.defaultScenarios
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -29,6 +32,9 @@ class FireModelViewModel @Inject constructor(
                     targetDate = model.profile.targetDate,
                     equityCagr = model.profile.equityCagrPct.toString(),
                     startCorpus = model.profile.startCorpus.toString(),
+                    scenarios = model.scenarios.ifEmpty { defaultScenarios() }.map { s ->
+                        ScenarioEdit(s.id, s.label, s.kind, s.amount.toLong().toString(), s.enabled)
+                    },
                     originalModel = model
                 ) }
             }
@@ -51,19 +57,49 @@ class FireModelViewModel @Inject constructor(
         _uiState.update { it.copy(startCorpus = value) }
     }
 
+    fun toggleScenario(id: String) {
+        _uiState.update { state ->
+            state.copy(scenarios = state.scenarios.map {
+                if (it.id == id) it.copy(enabled = !it.enabled) else it
+            })
+        }
+    }
+
+    fun updateScenarioAmount(id: String, value: String) {
+        _uiState.update { state ->
+            state.copy(scenarios = state.scenarios.map {
+                if (it.id == id) it.copy(amountText = value.filter { c -> c.isDigit() }) else it
+            })
+        }
+    }
+
     fun save() {
         val currentState = _uiState.value
         val original = currentState.originalModel ?: return
-        
+
         val updatedProfile = original.profile.copy(
             targetMode = currentState.targetMode,
             annualRetirementExpenses = currentState.annualExpenses.toDoubleOrNull() ?: 0.0,
             equityCagrPct = currentState.equityCagr.toDoubleOrNull() ?: 12.0,
             startCorpus = currentState.startCorpus.toDoubleOrNull() ?: 0.0
         )
-        
+
+        val originalScenarios = original.scenarios.associateBy { it.id }
+        val updatedScenarios = currentState.scenarios.map { edit ->
+            Scenario(
+                id = edit.id,
+                label = edit.label,
+                kind = edit.kind,
+                amount = edit.amountText.toDoubleOrNull() ?: 0.0,
+                startDate = originalScenarios[edit.id]?.startDate,
+                enabled = edit.enabled
+            )
+        }
+
         viewModelScope.launch {
-            repository.saveFireModel(original.copy(profile = updatedProfile))
+            repository.saveFireModel(
+                original.copy(profile = updatedProfile, scenarios = updatedScenarios)
+            )
             _uiState.update { it.copy(isSaved = true) }
         }
     }
@@ -79,6 +115,15 @@ data class FireModelUiState(
     val targetDate: LocalDate = LocalDate.now().plusYears(10),
     val equityCagr: String = "12.0",
     val startCorpus: String = "0",
+    val scenarios: List<ScenarioEdit> = emptyList(),
     val originalModel: FireModel? = null,
     val isSaved: Boolean = false
+)
+
+data class ScenarioEdit(
+    val id: String,
+    val label: String,
+    val kind: ScenarioKind,
+    val amountText: String,
+    val enabled: Boolean
 )

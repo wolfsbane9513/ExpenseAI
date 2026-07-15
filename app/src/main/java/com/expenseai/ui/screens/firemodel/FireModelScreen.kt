@@ -9,12 +9,14 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.expenseai.domain.fire.ScenarioKind
 import com.expenseai.domain.fire.TargetMode
 import java.text.NumberFormat
 import java.util.Locale
@@ -124,6 +126,52 @@ fun FireModelScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+
+            HorizontalDivider()
+
+            Text(
+                text = "Scenarios",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "What-if overlays you can toggle on the Projections tab.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            uiState.scenarios.forEach { scenario ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(scenario.label, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = if (scenario.kind == ScenarioKind.ONE_TIME_INFLOW) {
+                                "One-time inflow"
+                            } else {
+                                "Monthly income"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = scenario.enabled,
+                        onCheckedChange = { viewModel.toggleScenario(scenario.id) }
+                    )
+                }
+                OutlinedTextField(
+                    value = scenario.amountText,
+                    onValueChange = { viewModel.updateScenarioAmount(scenario.id, it) },
+                    label = { Text("${scenario.label} amount") },
+                    prefix = { Text("₹ ") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
