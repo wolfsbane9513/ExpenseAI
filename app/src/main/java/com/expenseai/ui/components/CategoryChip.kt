@@ -20,7 +20,12 @@ fun CategoryChip(
         onClick = onSelected,
         label = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = category.icon)
+                Icon(
+                    imageVector = category.icon,
+                    contentDescription = null,
+                    tint = category.color,
+                    modifier = Modifier.size(18.dp)
+                )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = category.label)
             }

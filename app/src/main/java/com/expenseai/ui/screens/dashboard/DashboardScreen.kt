@@ -223,9 +223,11 @@ fun DashboardContent(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = category.icon,
-                            fontSize = 20.sp
+                        Icon(
+                            imageVector = category.icon,
+                            contentDescription = null,
+                            tint = category.color,
+                            modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -604,10 +606,13 @@ private fun AddExpenseDialog(
                 ) {
                     val category = getCategoryById(selectedCategory)
                     OutlinedTextField(
-                        value = "${category.icon} ${category.label}",
+                        value = category.label,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Category") },
+                        leadingIcon = {
+                            Icon(category.icon, contentDescription = null, tint = category.color)
+                        },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -619,7 +624,10 @@ private fun AddExpenseDialog(
                     ) {
                         DEFAULT_CATEGORIES.forEach { cat ->
                             DropdownMenuItem(
-                                text = { Text("${cat.icon} ${cat.label}") },
+                                text = { Text(cat.label) },
+                                leadingIcon = {
+                                    Icon(cat.icon, contentDescription = null, tint = cat.color)
+                                },
                                 onClick = {
                                     selectedCategory = cat.id
                                     expanded = false

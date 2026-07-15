@@ -104,8 +104,15 @@ fun InsightsScreen(
                                     drawCircle(color = colors[index])
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = category.icon,
+                                    contentDescription = null,
+                                    tint = category.color,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    "${category.icon} ${category.label}",
+                                    category.label,
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -224,10 +231,16 @@ fun InsightsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text("Top Category", style = MaterialTheme.typography.bodyMedium)
-                                Text(
-                                    "${cat.icon} ${cat.label}",
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = cat.icon,
+                                        contentDescription = null,
+                                        tint = cat.color,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(cat.label, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }

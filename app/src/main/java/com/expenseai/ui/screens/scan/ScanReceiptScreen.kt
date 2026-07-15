@@ -277,10 +277,13 @@ private fun ReviewForm(
     ) {
         val category = getCategoryById(uiState.editCategory)
         OutlinedTextField(
-            value = "${category.icon} ${category.label}",
+            value = category.label,
             onValueChange = {},
             readOnly = true,
             label = { Text("Category") },
+            leadingIcon = {
+                Icon(category.icon, contentDescription = null, tint = category.color)
+            },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -292,7 +295,10 @@ private fun ReviewForm(
         ) {
             DEFAULT_CATEGORIES.forEach { cat ->
                 DropdownMenuItem(
-                    text = { Text("${cat.icon} ${cat.label}") },
+                    text = { Text(cat.label) },
+                    leadingIcon = {
+                        Icon(cat.icon, contentDescription = null, tint = cat.color)
+                    },
                     onClick = {
                         onCategoryChange(cat.id)
                         expanded = false

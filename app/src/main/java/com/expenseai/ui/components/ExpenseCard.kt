@@ -66,9 +66,11 @@ fun ExpenseCard(
                             .padding(4.dp)
                             .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
                     )
-                    Text(
-                        text = category.icon,
-                        style = MaterialTheme.typography.titleLarge
+                    Icon(
+                        imageVector = category.icon,
+                        contentDescription = category.label,
+                        tint = category.color,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
