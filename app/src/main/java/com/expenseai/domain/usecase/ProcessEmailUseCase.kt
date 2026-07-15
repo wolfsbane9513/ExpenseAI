@@ -23,16 +23,15 @@ class ProcessEmailUseCase @Inject constructor(
         if (pendingDao.countByDedupKey(key) > 0) return false
 
         // Use Gemma if available, otherwise fallback to Regex parser
-        val parsedResult = gemmaService.parseEmail(sanitizedBody)
-        val vendor = parsedResult.vendor.ifBlank { emailParser.parse(sanitizedBody, sanitizedSubject)?.vendor ?: "Unknown" }
-        val amount = if (parsedResult.amount > 0) parsedResult.amount else (emailParser.parse(sanitizedBody, sanitizedSubject)?.amount ?: 0.0)
-        val date = parsedResult.date.ifBlank { emailParser.parse(sanitizedBody, sanitizedSubject)?.date ?: "" }
-        val category = parsedResult.category
-        val items = if (parsedResult.items.isNotEmpty()) {
-            com.google.gson.Gson().toJson(parsedResult.items)
-        } else {
-            com.google.gson.Gson().toJson(emailParser.parse(sanitizedBody, sanitizedSubject)?.items ?: emptyList<String>())
-        }
+        val ai = gemmaService.parseEmail(sanitizedBody)
+        val fallback = emailParser.parse(sanitizedBody, sanitizedSubject)
+        val amount = if (ai.amount > 0) ai.amount else fallback?.amount ?: 0.0
+        if (amount <= 0.0) return false // neither parser found a transaction
+
+        val vendor = ai.vendor.ifBlank { fallback?.vendor ?: "Unknown" }
+        val date = ai.date.ifBlank { fallback?.date ?: "" }
+        val category = if (ai.amount > 0) ai.category else fallback?.category ?: ai.category
+        val items = com.google.gson.Gson().toJson(ai.items.ifEmpty { fallback?.items ?: emptyList() })
 
         pendingDao.insert(
             PendingExpenseEntity(

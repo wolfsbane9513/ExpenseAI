@@ -27,11 +27,14 @@ class ProcessSmsUseCase @Inject constructor(
             if (pendingDao.countByDedupKey(key) > 0) continue
 
             // Use Gemma if available, otherwise fallback to Regex parser
-            val parsedResult = gemmaService.parseSms(sanitized)
-            val vendor = parsedResult.vendor.ifBlank { smsParser.parse(sanitized)?.vendor ?: "Unknown" }
-            val amount = if (parsedResult.amount > 0) parsedResult.amount else (smsParser.parse(sanitized)?.amount ?: 0.0)
-            val date = parsedResult.date.ifBlank { smsParser.parse(sanitized)?.date ?: "" }
-            val category = parsedResult.category
+            val ai = gemmaService.parseSms(sanitized)
+            val fallback = smsParser.parse(sanitized)
+            val amount = if (ai.amount > 0) ai.amount else fallback?.amount ?: 0.0
+            if (amount <= 0.0) continue // neither parser found a transaction
+
+            val vendor = ai.vendor.ifBlank { fallback?.vendor ?: "Unknown" }
+            val date = ai.date.ifBlank { fallback?.date ?: "" }
+            val category = if (ai.amount > 0) ai.category else fallback?.category ?: ai.category
 
             pendingDao.insert(
                 PendingExpenseEntity(
