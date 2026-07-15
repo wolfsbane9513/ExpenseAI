@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.expenseai.SourcesViewModelTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-09T04:07:17" hostname="WOLFSBANE" time="0.009">
-  <properties/>
-  <testcase name="pending count reflects dao flow" classname="com.expenseai.SourcesViewModelTest" time="0.009"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
