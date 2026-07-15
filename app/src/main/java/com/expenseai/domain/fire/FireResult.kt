@@ -56,3 +56,11 @@ data class FireResult(
     val reframe: Reframe,
     val progressPercent: Double
 )
+
+data class PurchaseDecision(
+    val daysDelta: Long,
+    val baseFireDate: LocalDate?,
+    val newFireDate: LocalDate?,
+    /** What the amount would grow to by the base FIRE date if invested instead. */
+    val futureValueAtFireDate: Double
+)

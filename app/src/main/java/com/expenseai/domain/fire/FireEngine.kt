@@ -186,17 +186,29 @@ class FireEngine(private val horizonMonths: Int = 360) {
     }
 
     /** FIRE days delayed by spending [amount] (as a one-time outflow at [atDate]). */
-    fun fireDaysImpact(model: FireModel, amount: Double, atDate: LocalDate): Long {
-        if (amount <= 0.0) return 0L
-        val baseDate = project(model).fireDate
+    fun fireDaysImpact(model: FireModel, amount: Double, atDate: LocalDate): Long =
+        purchaseDecision(model, amount, atDate).daysDelta
+
+    /** Full purchase-decision readout for the Should-I-Buy screen (Spec 1.5). */
+    fun purchaseDecision(model: FireModel, amount: Double, atDate: LocalDate): PurchaseDecision {
+        if (amount <= 0.0) return PurchaseDecision(0L, project(model).fireDate, project(model).fireDate, 0.0)
+        val base = project(model)
         val withSpend = model.copy(
             oneTimeEvents = model.oneTimeEvents + OneTimeEvent(
                 "purchase", amount, atDate, EventDirection.OUTFLOW
             )
         )
-        val spendDate = project(withSpend).fireDate
-        if (baseDate == null || spendDate == null) return 0L
-        return ChronoUnit.DAYS.between(baseDate, spendDate)
+        val spent = project(withSpend)
+        val daysDelta = if (base.fireDate != null && spent.fireDate != null) {
+            ChronoUnit.DAYS.between(base.fireDate, spent.fireDate)
+        } else 0L
+        val monthsToFire = base.fireDate
+            ?.let { ChronoUnit.MONTHS.between(atDate, it).coerceAtLeast(0) } ?: 0L
+        val fv = amount * Math.pow(
+            1.0 + FireMath.monthlyRate(model.profile.equityCagrPct),
+            monthsToFire.toDouble()
+        )
+        return PurchaseDecision(daysDelta, base.fireDate, spent.fireDate, fv)
     }
 
     private fun money(v: Double): String = "₹${Math.round(v)}"
