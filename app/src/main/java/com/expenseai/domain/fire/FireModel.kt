@@ -64,6 +64,18 @@ data class PropertyHolding(
     val linkedLiabilityName: String? = null
 )
 
+enum class ScenarioKind { ONE_TIME_INFLOW, MONTHLY_INCOME }
+
+/** A what-if overlay the user can toggle on the projection (Spec 1.5). */
+data class Scenario(
+    val id: String,
+    val label: String,
+    val kind: ScenarioKind,
+    val amount: Double = 0.0,
+    val startDate: LocalDate? = null,
+    val enabled: Boolean = false
+)
+
 data class FireModel(
     val profile: FireProfile,
     val incomes: List<IncomeStream> = emptyList(),
@@ -71,5 +83,28 @@ data class FireModel(
     val recurringOutflows: List<RecurringOutflow> = emptyList(),
     val oneTimeEvents: List<OneTimeEvent> = emptyList(),
     val nonCorpusAssets: List<NonCorpusAsset> = emptyList(),
-    val properties: List<PropertyHolding> = emptyList()
+    val properties: List<PropertyHolding> = emptyList(),
+    val scenarios: List<Scenario> = emptyList()
+)
+
+/**
+ * Gson bypasses Kotlin default values, so a FireModel stored before a
+ * collection field existed deserializes with that field null. Always call
+ * this after fromJson.
+ */
+@Suppress("USELESS_ELVIS", "SENSELESS_COMPARISON")
+fun FireModel.withSafeCollections(): FireModel = copy(
+    incomes = incomes ?: emptyList(),
+    liabilities = liabilities ?: emptyList(),
+    recurringOutflows = recurringOutflows ?: emptyList(),
+    oneTimeEvents = oneTimeEvents ?: emptyList(),
+    nonCorpusAssets = nonCorpusAssets ?: emptyList(),
+    properties = properties ?: emptyList(),
+    scenarios = scenarios ?: emptyList()
+)
+
+/** Seed scenarios shown when the user has none saved. Amounts are entered in Settings. */
+fun defaultScenarios(): List<Scenario> = listOf(
+    Scenario("rsu", "RSU Vesting", ScenarioKind.ONE_TIME_INFLOW),
+    Scenario("business", "Business Income", ScenarioKind.MONTHLY_INCOME)
 )

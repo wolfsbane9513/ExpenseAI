@@ -35,7 +35,8 @@ class FireEngine(private val horizonMonths: Int = 360) {
             it.date.year == month.year && it.date.monthValue == month.monthValue
         }.sumOf { if (it.direction == EventDirection.OUTFLOW) -it.amount else it.amount }
 
-    fun project(model: FireModel): FireResult {
+    fun project(inputModel: FireModel): FireResult {
+        val model = resolveScenarios(inputModel)
         val target = FireMath.targetCorpus(model.profile)
         val r = FireMath.monthlyRate(model.profile.equityCagrPct)
         val startDate = model.profile.simStartDate
@@ -68,6 +69,28 @@ class FireEngine(private val horizonMonths: Int = 360) {
             netWorthAtTarget = netWorthAtTarget,
             reframe = reframe,
             progressPercent = progress
+        )
+    }
+
+    /** Merge enabled scenarios into the model as plain incomes/events. */
+    internal fun resolveScenarios(model: FireModel): FireModel {
+        val active = model.scenarios.filter { it.enabled && it.amount > 0.0 }
+        if (active.isEmpty()) return model
+        val start = model.profile.simStartDate
+        val extraIncomes = active
+            .filter { it.kind == ScenarioKind.MONTHLY_INCOME }
+            .map {
+                IncomeStream(
+                    owner = "Scenario", label = it.label, monthlyNet = it.amount,
+                    effectiveFrom = it.startDate ?: start, type = IncomeType.BUSINESS
+                )
+            }
+        val extraEvents = active
+            .filter { it.kind == ScenarioKind.ONE_TIME_INFLOW }
+            .map { OneTimeEvent(it.label, it.amount, it.startDate ?: start, EventDirection.INFLOW) }
+        return model.copy(
+            incomes = model.incomes + extraIncomes,
+            oneTimeEvents = model.oneTimeEvents + extraEvents
         )
     }
 
