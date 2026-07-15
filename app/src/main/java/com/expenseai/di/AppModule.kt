@@ -20,16 +20,16 @@ object AppModule {
     @Provides
     @Singleton
     fun provideExpenseDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        encryptedPreferences: com.expenseai.security.EncryptedPreferences
     ): ExpenseDatabase {
-        // Generate a stable encryption key from the Android Keystore
-        val passphrase = getOrCreateDatabaseKey(context)
+        val passphrase = getOrCreateDbPassphrase(context, encryptedPreferences)
         val factory = SupportFactory(passphrase)
 
         return Room.databaseBuilder(
             context,
             ExpenseDatabase::class.java,
-            "expense_db"
+            DB_NAME
         )
             .openHelperFactory(factory)
             .addMigrations(ExpenseDatabase.MIGRATION_1_2, ExpenseDatabase.MIGRATION_2_3)
@@ -57,33 +57,52 @@ object AppModule {
     fun provideFireEngine(): com.expenseai.domain.fire.FireEngine =
         com.expenseai.domain.fire.FireEngine()
 
-    private fun getOrCreateDatabaseKey(context: Context): ByteArray {
-        val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
-        keyStore.load(null)
-
-        val alias = "expense_db_key"
-
-        if (!keyStore.containsAlias(alias)) {
-            val keyGenerator = javax.crypto.KeyGenerator.getInstance(
-                android.security.keystore.KeyProperties.KEY_ALGORITHM_AES,
-                "AndroidKeyStore"
-            )
-            keyGenerator.init(
-                android.security.keystore.KeyGenParameterSpec.Builder(
-                    alias,
-                    android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or
-                            android.security.keystore.KeyProperties.PURPOSE_DECRYPT
-                )
-                    .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setKeySize(256)
-                    .build()
-            )
-            keyGenerator.generateKey()
+    /**
+     * Returns the SQLCipher passphrase: a random 32-byte value generated once
+     * and stored in EncryptedSharedPreferences (Keystore-protected).
+     *
+     * The previous implementation derived the passphrase from an AndroidKeyStore
+     * AES key's `encoded` bytes — but Keystore keys are non-extractable, so
+     * `encoded` was always null and every install silently fell back to the
+     * static string "expense_db_key". Databases created under that scheme are
+     * rekeyed to the new random passphrase on first open.
+     */
+    private fun getOrCreateDbPassphrase(
+        context: Context,
+        encryptedPreferences: com.expenseai.security.EncryptedPreferences
+    ): ByteArray {
+        encryptedPreferences.getString(KEY_DB_PASSPHRASE)?.let {
+            return it.toByteArray(Charsets.UTF_8)
         }
 
-        // Derive a passphrase from the Keystore-backed key
-        val key = keyStore.getKey(alias, null) as javax.crypto.SecretKey
-        return key.encoded ?: alias.toByteArray(Charsets.UTF_8)
+        val passphrase = ByteArray(32)
+            .also { java.security.SecureRandom().nextBytes(it) }
+            .joinToString("") { "%02x".format(it) }
+
+        val dbFile = context.getDatabasePath(DB_NAME)
+        if (dbFile.exists()) {
+            net.sqlcipher.database.SQLiteDatabase.loadLibs(context)
+            val db = net.sqlcipher.database.SQLiteDatabase.openDatabase(
+                dbFile.absolutePath,
+                LEGACY_PASSPHRASE,
+                null,
+                net.sqlcipher.database.SQLiteDatabase.OPEN_READWRITE
+            )
+            try {
+                db.changePassword(passphrase)
+            } finally {
+                db.close()
+            }
+        }
+
+        // Stored only after a successful rekey so a failed migration retries next launch
+        encryptedPreferences.putString(KEY_DB_PASSPHRASE, passphrase)
+        return passphrase.toByteArray(Charsets.UTF_8)
     }
+
+    private const val DB_NAME = "expense_db"
+    private const val KEY_DB_PASSPHRASE = "db_passphrase"
+
+    // The passphrase every install effectively used under the old Keystore-derived scheme
+    private const val LEGACY_PASSPHRASE = "expense_db_key"
 }
