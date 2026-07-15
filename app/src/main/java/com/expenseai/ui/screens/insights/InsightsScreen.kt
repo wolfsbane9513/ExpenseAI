@@ -2,6 +2,8 @@ package com.expenseai.ui.screens.insights
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -13,22 +15,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.expenseai.domain.fire.FireResult
+import com.expenseai.domain.fire.Scenario
 import com.expenseai.domain.model.getCategoryById
 import com.expenseai.ui.components.MonthSelector
 import java.text.NumberFormat
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InsightsScreen(
+    onShouldIBuyClick: () -> Unit = {},
     viewModel: InsightsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val projection by viewModel.projection.collectAsStateWithLifecycle()
     val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+    formatter.maximumFractionDigits = 0
 
     Scaffold(
         topBar = {
@@ -43,6 +53,16 @@ fun InsightsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            projection.result?.let { result ->
+                ProjectionCard(
+                    result = result,
+                    scenarios = projection.scenarios,
+                    formatter = formatter,
+                    onToggleScenario = viewModel::toggleScenario,
+                    onShouldIBuyClick = onShouldIBuyClick
+                )
+            }
+
             MonthSelector(
                 currentMonth = uiState.currentMonth,
                 onPreviousMonth = viewModel::previousMonth,
@@ -247,5 +267,101 @@ fun InsightsScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ProjectionCard(
+    result: FireResult,
+    scenarios: List<Scenario>,
+    formatter: java.text.NumberFormat,
+    onToggleScenario: (String) -> Unit,
+    onShouldIBuyClick: () -> Unit
+) {
+    val dateFormat = remember { DateTimeFormatter.ofPattern("MMM yyyy") }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                "FIRE Projection",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        "FIRE date",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        result.fireDate?.format(dateFormat) ?: "Beyond horizon",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        "Target corpus",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        formatter.format(result.targetCorpus),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            LinearProgressIndicator(
+                progress = { (result.progressPercent / 100.0).toFloat().coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            TrajectorySparkline(result)
+            if (scenarios.isNotEmpty()) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(scenarios, key = { it.id }) { scenario ->
+                        FilterChip(
+                            selected = scenario.enabled,
+                            onClick = { onToggleScenario(scenario.id) },
+                            label = { Text(scenario.label) }
+                        )
+                    }
+                }
+            }
+            TextButton(onClick = onShouldIBuyClick) {
+                Text("Should I buy something? →")
+            }
+        }
+    }
+}
+
+@Composable
+private fun TrajectorySparkline(result: FireResult) {
+    val color = MaterialTheme.colorScheme.primary
+    val points = result.trajectory
+    if (points.size < 2) return
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp)
+    ) {
+        val maxCorpus = points.maxOf { it.corpus }.coerceAtLeast(1.0)
+        val minCorpus = points.minOf { it.corpus }
+        val range = (maxCorpus - minCorpus).coerceAtLeast(1.0)
+        val stepX = size.width / (points.size - 1)
+        val path = Path()
+        points.forEachIndexed { i, p ->
+            val x = i * stepX
+            val y = size.height - ((p.corpus - minCorpus) / range * size.height).toFloat()
+            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+        }
+        drawPath(path, color = color, style = Stroke(width = 4f))
     }
 }

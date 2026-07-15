@@ -4,7 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.expenseai.ai.GemmaService
 import com.expenseai.data.repository.ExpenseRepository
+import com.expenseai.data.repository.FireRepository
+import com.expenseai.domain.fire.FireEngine
+import com.expenseai.domain.fire.FireResult
+import com.expenseai.domain.fire.Scenario
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.YearMonth
@@ -21,7 +26,9 @@ data class InsightsUiState(
 @HiltViewModel
 class InsightsViewModel @Inject constructor(
     private val repository: ExpenseRepository,
-    private val gemmaService: GemmaService
+    private val gemmaService: GemmaService,
+    private val fireRepository: FireRepository,
+    private val fireEngine: FireEngine
 ) : ViewModel() {
 
     private val _currentMonth = MutableStateFlow(YearMonth.now())
@@ -53,6 +60,20 @@ class InsightsViewModel @Inject constructor(
         initialValue = InsightsUiState()
     )
 
+    data class ProjectionUiState(
+        val result: FireResult? = null,
+        val scenarios: List<Scenario> = emptyList()
+    )
+
+    val projection: StateFlow<ProjectionUiState> = fireRepository.getFireModel()
+        .map { model -> ProjectionUiState(fireEngine.project(model), model.scenarios) }
+        .flowOn(Dispatchers.Default)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ProjectionUiState()
+        )
+
     fun generateInsights() {
         viewModelScope.launch {
             _isLoadingInsights.value = true
@@ -81,6 +102,17 @@ class InsightsViewModel @Inject constructor(
         if (next <= YearMonth.now()) {
             _currentMonth.update { next }
             _aiInsights.value = ""
+        }
+    }
+
+    fun toggleScenario(id: String) {
+        viewModelScope.launch {
+            val model = fireRepository.getFireModel().first()
+            fireRepository.saveFireModel(
+                model.copy(scenarios = model.scenarios.map {
+                    if (it.id == id) it.copy(enabled = !it.enabled) else it
+                })
+            )
         }
     }
 }
