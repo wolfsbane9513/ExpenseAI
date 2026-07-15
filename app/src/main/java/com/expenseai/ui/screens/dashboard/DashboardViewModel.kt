@@ -28,7 +28,8 @@ data class DashboardUiState(
     val modelStatus: ModelStatus = ModelStatus.NOT_DOWNLOADED,
     val modelMessage: String? = null,
     val installedModelName: String? = null,
-    val showAddDialog: Boolean = false
+    val showAddDialog: Boolean = false,
+    val monthlyBudget: Double? = null
 )
 
 data class ExpenseImpact(
@@ -77,7 +78,9 @@ class DashboardViewModel @Inject constructor(
                 recentExpenses = recentWithImpact,
                 modelStatus = modelStatus,
                 modelMessage = modelMessage,
-                installedModelName = modelManager.getModelFileName()
+                installedModelName = modelManager.getModelFileName(),
+                monthlyBudget = (fireModel.profile.annualRetirementExpenses / 12)
+                    .takeIf { it > 0 }
             )
         }
     }.stateIn(

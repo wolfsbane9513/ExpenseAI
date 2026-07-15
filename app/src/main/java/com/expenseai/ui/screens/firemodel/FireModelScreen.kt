@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.expenseai.domain.fire.TargetMode
+import java.text.NumberFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,6 +27,9 @@ fun FireModelScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val currencyFormatter = remember {
+        NumberFormat.getCurrencyInstance(Locale("en", "IN")).apply { maximumFractionDigits = 0 }
+    }
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
@@ -83,12 +88,12 @@ fun FireModelScreen(
                     value = uiState.annualExpenses,
                     onValueChange = viewModel::updateAnnualExpenses,
                     label = { Text("Desired Annual Retirement Expenses") },
-                    prefix = { Text("Rs ") },
+                    prefix = { Text("₹ ") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(
-                    text = "Calculated Target: Rs ${ (uiState.annualExpenses.toDoubleOrNull() ?: 0.0) * 25 }",
+                    text = "Calculated Target: ${currencyFormatter.format((uiState.annualExpenses.toDoubleOrNull() ?: 0.0) * 25)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -115,7 +120,7 @@ fun FireModelScreen(
                 value = uiState.startCorpus,
                 onValueChange = viewModel::updateStartCorpus,
                 label = { Text("Current Invested Corpus") },
-                prefix = { Text("Rs ") },
+                prefix = { Text("₹ ") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )

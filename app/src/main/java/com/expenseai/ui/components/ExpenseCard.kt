@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +28,9 @@ fun ExpenseCard(
     onClick: () -> Unit = {}
 ) {
     val category = getCategoryById(expense.category)
-    val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+    val formatter = remember {
+        NumberFormat.getCurrencyInstance(Locale("en", "IN")).apply { maximumFractionDigits = 0 }
+    }
 
     Card(
         onClick = onClick,
@@ -114,7 +117,7 @@ fun ExpenseCard(
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "-₹${String.format("%.0f", expense.amount)}",
+                    text = "-${formatter.format(expense.amount)}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,

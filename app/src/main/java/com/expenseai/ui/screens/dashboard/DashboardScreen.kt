@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -56,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -178,9 +180,16 @@ fun DashboardContent(
             }
 
             item {
+                val budget = uiState.monthlyBudget
                 DashboardHeroCard(
                     totalSpending = formatter.format(uiState.totalSpending),
-                    budgetSummary = "65% of monthly FIRE budget (Rs 22,000)"
+                    spentFraction = budget?.let {
+                        (uiState.totalSpending / it).toFloat().coerceIn(0f, 1f)
+                    },
+                    budgetSummary = budget?.let {
+                        val pct = (uiState.totalSpending / it * 100).toInt()
+                        "$pct% of monthly FIRE budget (${formatter.format(it)})"
+                    } ?: "Set your retirement expenses in Settings to track your FIRE budget"
                 )
             }
 
@@ -317,6 +326,7 @@ fun DashboardContent(
 @Composable
 private fun DashboardHeroCard(
     totalSpending: String,
+    spentFraction: Float?,
     budgetSummary: String
 ) {
     Card(
@@ -352,16 +362,18 @@ private fun DashboardHeroCard(
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.height(18.dp))
-            LinearProgressIndicator(
-                progress = { 0.65f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            if (spentFraction != null) {
+                LinearProgressIndicator(
+                    progress = { spentFraction },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(CircleShape),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             Text(
                 text = budgetSummary,
                 style = MaterialTheme.typography.labelSmall,
@@ -581,8 +593,9 @@ private fun AddExpenseDialog(
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } },
-                    label = { Text("Amount (Rs)") },
+                    label = { Text("Amount (₹)") },
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
                 ExposedDropdownMenuBox(
