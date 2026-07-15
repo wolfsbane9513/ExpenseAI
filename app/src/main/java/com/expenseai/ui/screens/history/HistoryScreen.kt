@@ -29,7 +29,7 @@ fun HistoryScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Expense History") })
+            TopAppBar(title = { Text("FIRE Log") })
         }
     ) { padding ->
         Column(
@@ -44,7 +44,7 @@ fun HistoryScreen(
                     searchQuery = it
                     viewModel.updateSearchQuery(it)
                 },
-                placeholder = { Text("Search expenses...") },
+                placeholder = { Text("Search FIRE activity...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 singleLine = true,
                 modifier = Modifier
@@ -60,15 +60,15 @@ fun HistoryScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (uiState.isSearching) "No matching expenses"
-                        else "No expenses recorded yet",
+                        text = if (uiState.isSearching) "No matching activity"
+                        else "No activity recorded yet",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
                 // Group expenses by date
-                val groupedExpenses = uiState.expenses.groupBy { it.date }
+                val groupedExpenses = uiState.expenses.groupBy { it.expense.date }
 
                 LazyColumn(
                     contentPadding = PaddingValues(16.dp),
@@ -87,12 +87,12 @@ fun HistoryScreen(
 
                         items(
                             items = expenses,
-                            key = { it.id }
-                        ) { expense ->
+                            key = { it.expense.id }
+                        ) { impact ->
                             val dismissState = rememberSwipeToDismissBoxState(
                                 confirmValueChange = { dismissValue ->
                                     if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                                        viewModel.deleteExpense(expense.id)
+                                        viewModel.deleteExpense(impact.expense.id)
                                         true
                                     } else false
                                 }
@@ -124,7 +124,10 @@ fun HistoryScreen(
                                 },
                                 enableDismissFromStartToEnd = false
                             ) {
-                                ExpenseCard(expense = expense)
+                                ExpenseCard(
+                                    expense = impact.expense,
+                                    fireImpactDays = impact.fireImpactDays
+                                )
                             }
                         }
                     }

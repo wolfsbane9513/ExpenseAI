@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ExpenseAI"
+rootProject.name = "FIRE OS"
 include(":app")

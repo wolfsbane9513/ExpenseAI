@@ -32,9 +32,15 @@ object AppModule {
             "expense_db"
         )
             .openHelperFactory(factory)
-            .addMigrations(ExpenseDatabase.MIGRATION_1_2)
+            .addMigrations(ExpenseDatabase.MIGRATION_1_2, ExpenseDatabase.MIGRATION_2_3)
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideFireModelDao(database: ExpenseDatabase): com.expenseai.data.local.FireModelDao =
+        database.fireModelDao()
+
 
     @Provides
     @Singleton
@@ -45,6 +51,11 @@ object AppModule {
     @Singleton
     fun providePendingExpenseDao(database: ExpenseDatabase): PendingExpenseDao =
         database.pendingExpenseDao()
+
+    @Provides
+    @Singleton
+    fun provideFireEngine(): com.expenseai.domain.fire.FireEngine =
+        com.expenseai.domain.fire.FireEngine()
 
     private fun getOrCreateDatabaseKey(context: Context): ByteArray {
         val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")

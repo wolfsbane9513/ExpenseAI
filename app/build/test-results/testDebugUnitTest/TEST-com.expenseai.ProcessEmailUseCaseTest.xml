@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.expenseai.ProcessEmailUseCaseTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-09T04:07:17" hostname="WOLFSBANE" time="0.165">
+  <properties/>
+  <testcase name="duplicate email is not staged again" classname="com.expenseai.ProcessEmailUseCaseTest" time="0.137"/>
+  <testcase name="valid transactional email stages pending expense" classname="com.expenseai.ProcessEmailUseCaseTest" time="0.022"/>
+  <testcase name="non-transactional email returns false" classname="com.expenseai.ProcessEmailUseCaseTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

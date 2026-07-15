@@ -18,14 +18,14 @@
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ExpenseAI"
+        android:theme="@style/Theme.FIREOS"
         android:usesCleartextTraffic="false"
         tools:targetApi="34">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.ExpenseAI">
+            android:theme="@style/Theme.FIREOS">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,8 +33,9 @@
         </activity>
         <activity
             android:name=".ShareActivity"
+            android:label="Stage to FIRE OS"
             android:exported="true"
-            android:theme="@style/Theme.ExpenseAI"
+            android:theme="@style/Theme.FIREOS"
             android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

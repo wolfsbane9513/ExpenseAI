@@ -4,15 +4,23 @@ import app.cash.turbine.test
 import com.expenseai.data.local.PendingExpenseDao
 import com.expenseai.data.local.PendingExpenseEntity
 import com.expenseai.data.repository.ExpenseRepository
-import com.expenseai.domain.usecase.ProcessEmailUseCase
+import com.expenseai.domain.usecase.ProcessSharedTextUseCase
 import com.expenseai.ui.screens.review.ReviewViewModel
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -22,7 +30,7 @@ class ReviewViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var pendingDao: PendingExpenseDao
     private lateinit var repository: ExpenseRepository
-    private lateinit var processEmailUseCase: ProcessEmailUseCase
+    private lateinit var processSharedTextUseCase: ProcessSharedTextUseCase
     private lateinit var viewModel: ReviewViewModel
 
     private val pendingFlow = MutableStateFlow<List<PendingExpenseEntity>>(emptyList())
@@ -31,9 +39,9 @@ class ReviewViewModelTest {
         Dispatchers.setMain(testDispatcher)
         pendingDao = mockk(relaxed = true)
         repository = mockk(relaxed = true)
-        processEmailUseCase = mockk(relaxed = true)
+        processSharedTextUseCase = mockk(relaxed = true)
         every { pendingDao.getAll() } returns pendingFlow
-        viewModel = ReviewViewModel(pendingDao, repository, processEmailUseCase)
+        viewModel = ReviewViewModel(pendingDao, repository, processSharedTextUseCase)
     }
 
     @After fun teardown() { Dispatchers.resetMain() }
@@ -63,5 +71,14 @@ class ReviewViewModelTest {
         viewModel.reject(item)
         coVerify { pendingDao.deleteById(2) }
         coVerify(exactly = 0) { repository.addExpense(any()) }
+    }
+
+    @Test fun `shared text failure updates error state`() = runTest {
+        coEvery { processSharedTextUseCase.execute(any(), any()) } returns false
+
+        viewModel.processSharedText("not a transaction", "")
+
+        assertFalse(viewModel.shareStagingState.value.isProcessing)
+        assertTrue(viewModel.shareStagingState.value.errorMessage?.contains("couldn't stage") == true)
     }
 }

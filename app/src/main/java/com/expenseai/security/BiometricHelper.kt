@@ -68,8 +68,8 @@ class BiometricHelper @Inject constructor(
         }
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("ExpenseAI")
-            .setSubtitle("Authenticate to access your expenses")
+            .setTitle("FIRE OS")
+            .setSubtitle("Authenticate to access your FIRE data")
             .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
             .build()
 

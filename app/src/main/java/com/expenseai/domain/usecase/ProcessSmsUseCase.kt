@@ -23,19 +23,22 @@ class ProcessSmsUseCase @Inject constructor(
         var staged = 0
         for (raw in messages) {
             val sanitized = InputSanitizer.sanitizeSmsText(raw.body)
-            val parsed = smsParser.parse(sanitized) ?: continue
             val key = SmsParser.dedupKey(sanitized)
             if (pendingDao.countByDedupKey(key) > 0) continue
 
-            // Optionally refine category via Gemma
-            val category = gemmaService.categorizeExpense(parsed.vendor)
+            // Use Gemma if available, otherwise fallback to Regex parser
+            val parsedResult = gemmaService.parseSms(sanitized)
+            val vendor = parsedResult.vendor.ifBlank { smsParser.parse(sanitized)?.vendor ?: "Unknown" }
+            val amount = if (parsedResult.amount > 0) parsedResult.amount else (smsParser.parse(sanitized)?.amount ?: 0.0)
+            val date = parsedResult.date.ifBlank { smsParser.parse(sanitized)?.date ?: "" }
+            val category = parsedResult.category
 
             pendingDao.insert(
                 PendingExpenseEntity(
-                    vendor = InputSanitizer.sanitizeVendorName(parsed.vendor),
-                    amount = parsed.amount,
+                    vendor = InputSanitizer.sanitizeVendorName(vendor),
+                    amount = amount,
                     category = InputSanitizer.validateCategory(category),
-                    date = parsed.date,
+                    date = date,
                     source = "sms",
                     dedupKey = key,
                     rawText = sanitized
