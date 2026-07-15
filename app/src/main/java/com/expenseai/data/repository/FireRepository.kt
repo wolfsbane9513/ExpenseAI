@@ -23,7 +23,7 @@ class FireRepository @Inject constructor(
     fun getFireModel(): Flow<FireModel> {
         return fireModelDao.getFireModel().map { entity ->
             if (entity != null) {
-                gson.fromJson(entity.jsonContent, FireModel::class.java)
+                gson.fromJson(entity.jsonContent, FireModel::class.java).withSafeCollections()
             } else {
                 getDefaultFireModel()
             }
@@ -60,7 +60,8 @@ class FireRepository @Inject constructor(
                     monthlyAmount = 80_000.0,
                     startDate = LocalDate.now()
                 )
-            )
+            ),
+            scenarios = defaultScenarios()
         )
     }
 }
