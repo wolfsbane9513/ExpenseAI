@@ -100,5 +100,3 @@ on-device.
 
 ---
 *Note: the package name `com.expenseai` is retained for stability and migration consistency.*
-</content>
-</invoke>
