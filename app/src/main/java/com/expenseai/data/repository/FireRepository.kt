@@ -23,7 +23,10 @@ class FireRepository @Inject constructor(
     fun getFireModel(): Flow<FireModel> {
         return fireModelDao.getFireModel().map { entity ->
             if (entity != null) {
-                gson.fromJson(entity.jsonContent, FireModel::class.java).withSafeCollections()
+                // Corrupt/unparseable stored JSON falls back to defaults instead of crash-looping;
+                // the model is user-editable config, so the next Save self-heals.
+                runCatching { gson.fromJson(entity.jsonContent, FireModel::class.java) }
+                    .getOrNull()?.withSafeCollections() ?: getDefaultFireModel()
             } else {
                 getDefaultFireModel()
             }

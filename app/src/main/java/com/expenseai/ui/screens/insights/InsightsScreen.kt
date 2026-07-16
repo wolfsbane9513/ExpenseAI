@@ -37,8 +37,9 @@ fun InsightsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val projection by viewModel.projection.collectAsStateWithLifecycle()
-    val formatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
-    formatter.maximumFractionDigits = 0
+    val formatter = remember {
+        NumberFormat.getCurrencyInstance(Locale("en", "IN")).apply { maximumFractionDigits = 0 }
+    }
 
     Scaffold(
         topBar = {
@@ -333,6 +334,13 @@ private fun ProjectionCard(
                             label = { Text(scenario.label) }
                         )
                     }
+                }
+                if (scenarios.any { it.amount <= 0.0 }) {
+                    Text(
+                        text = "Set scenario amounts in Settings for toggles to take effect.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
             TextButton(onClick = onShouldIBuyClick) {

@@ -8,6 +8,7 @@ import com.expenseai.data.repository.FireRepository
 import com.expenseai.domain.fire.FireEngine
 import com.expenseai.domain.fire.FireResult
 import com.expenseai.domain.fire.Scenario
+import com.expenseai.domain.fire.defaultScenarios
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -69,7 +70,13 @@ class InsightsViewModel @Inject constructor(
     )
 
     val projection: StateFlow<ProjectionUiState> = fireRepository.getFireModel()
-        .map { model -> ProjectionUiState(fireEngine.project(model), model.scenarios) }
+        // ifEmpty: models saved before scenarios existed still get chips (seeded on first toggle)
+        .map { model ->
+            ProjectionUiState(
+                fireEngine.project(model),
+                model.scenarios.ifEmpty { defaultScenarios() }
+            )
+        }
         .flowOn(Dispatchers.Default)
         .stateIn(
             scope = viewModelScope,
@@ -112,8 +119,9 @@ class InsightsViewModel @Inject constructor(
         viewModelScope.launch {
             toggleMutex.withLock {
                 val model = fireRepository.getFireModel().first()
+                val scenarios = model.scenarios.ifEmpty { defaultScenarios() }
                 fireRepository.saveFireModel(
-                    model.copy(scenarios = model.scenarios.map {
+                    model.copy(scenarios = scenarios.map {
                         if (it.id == id) it.copy(enabled = !it.enabled) else it
                     })
                 )
