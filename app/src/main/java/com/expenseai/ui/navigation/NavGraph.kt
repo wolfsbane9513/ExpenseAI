@@ -3,6 +3,7 @@ package com.expenseai.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import com.expenseai.ui.screens.firemodel.FireModelScreen
 import com.expenseai.ui.screens.history.HistoryScreen
 import com.expenseai.ui.screens.insights.InsightsScreen
 import com.expenseai.ui.screens.scan.ScanReceiptScreen
+import com.expenseai.ui.screens.shouldibuy.ShouldIBuyScreen
 import com.expenseai.ui.screens.sources.SourcesScreen
 import com.expenseai.ui.screens.sources.SourcesViewModel
 import com.expenseai.ui.theme.FIREOSTheme
@@ -39,6 +41,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     data object Insights  : Screen("insights",  "Projections", Icons.Default.Analytics)
     data object Sources   : Screen("sources",   "Intelligence", Icons.Default.AutoAwesome)
     data object FireModel : Screen("fire_model", "Settings",  Icons.Default.Settings)
+    data object ShouldIBuy : Screen("should_i_buy", "Should I Buy?", Icons.Default.ShoppingBag)
 }
 
 val bottomNavItems = listOf(
@@ -127,13 +130,18 @@ fun ExpenseNavHost(
                 } else {
                     com.expenseai.ui.screens.dashboard.DashboardScreen(
                         onScanClick = { navController.navigate(Screen.Scan.route) },
-                        onSettingsClick = { navController.navigate(Screen.FireModel.route) }
+                        onSettingsClick = { navController.navigate(Screen.FireModel.route) },
+                        onShouldIBuyClick = { navController.navigate(Screen.ShouldIBuy.route) }
                     )
                 }
             }
             composable(Screen.Scan.route) { ScanReceiptScreen() }
             composable(Screen.History.route) { HistoryScreen() }
-            composable(Screen.Insights.route) { InsightsScreen() }
+            composable(Screen.Insights.route) {
+                InsightsScreen(
+                    onShouldIBuyClick = { navController.navigate(Screen.ShouldIBuy.route) }
+                )
+            }
             composable(Screen.Sources.route) { 
                 if (!isShowingPreview) {
                     SourcesScreen() 
@@ -144,6 +152,9 @@ fun ExpenseNavHost(
             }
             composable(Screen.FireModel.route) {
                 FireModelScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.ShouldIBuy.route) {
+                ShouldIBuyScreen(onBack = { navController.popBackStack() })
             }
         }
     }

@@ -79,6 +79,7 @@ import java.util.Locale
 fun DashboardScreen(
     onScanClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onShouldIBuyClick: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,6 +96,7 @@ fun DashboardScreen(
         onAddExpense = viewModel::addExpense,
         onScanClick = onScanClick,
         onSettingsClick = onSettingsClick,
+        onShouldIBuyClick = onShouldIBuyClick,
         onImportModel = { modelPickerLauncher.launch(arrayOf("*/*")) },
         onRemoveModel = viewModel::removeModel,
         modelImportSummary = viewModel.getModelImportSummary()
@@ -110,6 +112,7 @@ fun DashboardContent(
     onAddExpense: (String, Double, String, String) -> Unit,
     onScanClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onShouldIBuyClick: () -> Unit = {},
     onImportModel: () -> Unit = {},
     onRemoveModel: () -> Unit = {},
     modelImportSummary: String = ""
@@ -173,6 +176,7 @@ fun DashboardContent(
                 QuickActionsCard(
                     onScanClick = onScanClick,
                     onInstallModel = onImportModel,
+                    onShouldIBuyClick = onShouldIBuyClick,
                     hasInstalledModel = uiState.installedModelName != null,
                     isModelBusy = uiState.modelStatus == ModelStatus.LOADING ||
                         uiState.modelStatus == ModelStatus.DOWNLOADING
@@ -389,6 +393,7 @@ private fun DashboardHeroCard(
 private fun QuickActionsCard(
     onScanClick: () -> Unit,
     onInstallModel: () -> Unit,
+    onShouldIBuyClick: () -> Unit,
     hasInstalledModel: Boolean,
     isModelBusy: Boolean
 ) {
@@ -403,30 +408,42 @@ private fun QuickActionsCard(
             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(18.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            FilledTonalButton(
-                onClick = onScanClick,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(20.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(Icons.Default.AddAPhoto, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Pulse Scan")
+                FilledTonalButton(
+                    onClick = onScanClick,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Icon(Icons.Default.AddAPhoto, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Pulse Scan")
+                }
+                Button(
+                    onClick = onInstallModel,
+                    enabled = !isModelBusy,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(if (hasInstalledModel) "Upgrade AI" else "Install AI")
+                }
             }
-            Button(
-                onClick = onInstallModel,
-                enabled = !isModelBusy,
-                modifier = Modifier.weight(1f),
+            OutlinedButton(
+                onClick = onShouldIBuyClick,
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp)
             ) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(if (hasInstalledModel) "Upgrade AI" else "Install AI")
+                Text("Should I Buy This?")
             }
         }
     }
@@ -682,6 +699,7 @@ fun DashboardPreview() {
             onPreviousMonth = {},
             onNextMonth = {},
             onAddExpense = { _, _, _, _ -> },
+            onShouldIBuyClick = {},
             modelImportSummary = "Install Gemma on this phone to unlock smarter on-device parsing."
         )
     }
