@@ -92,8 +92,9 @@ object InputSanitizer {
     // Sanitize multi-page document OCR text (longer cap than single-image OCR)
     fun sanitizeDocumentText(ocrText: String): String {
         return ocrText
-            .replace(Regex("[<>\"';`]"), "")
-            .replace(Regex("\\s{3,}"), " ")
+            .replace(Regex("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]"), "") // Remove control chars
+            .replace(Regex("<start_of_turn>|<end_of_turn>"), "")       // Remove prompt injection markers
+            .replace(Regex("<[^>]*>"), "")                             // Strip HTML/XML tags
             .take(MAX_DOCUMENT_LENGTH)
     }
 
