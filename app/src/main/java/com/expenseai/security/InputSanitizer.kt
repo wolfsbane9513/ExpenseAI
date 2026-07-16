@@ -89,9 +89,18 @@ object InputSanitizer {
             .replace("\\", "/")
     }
 
+    // Sanitize multi-page document OCR text (longer cap than single-image OCR)
+    fun sanitizeDocumentText(ocrText: String): String {
+        return ocrText
+            .replace(Regex("[<>\"';`]"), "")
+            .replace(Regex("\\s{3,}"), " ")
+            .take(MAX_DOCUMENT_LENGTH)
+    }
+
     private const val MAX_TEXT_LENGTH = 500
     private const val MAX_AMOUNT_LENGTH = 15
     private const val MAX_OCR_LENGTH = 5000
+    private const val MAX_DOCUMENT_LENGTH = 20_000
     private const val MAX_VENDOR_LENGTH = 100
     private const val MAX_SMS_LENGTH = 500
     private const val MAX_EMAIL_LENGTH = 2000
