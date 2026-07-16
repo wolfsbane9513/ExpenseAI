@@ -21,12 +21,12 @@ class PdfTextExtractor @Inject constructor(
     private val ocrService: OCRService
 ) {
     suspend fun extract(uri: Uri): List<String> = withContext(Dispatchers.IO) {
-        val cacheFile = File(context.cacheDir, "import_doc.pdf")
-        context.contentResolver.openInputStream(uri)?.use { input ->
-            cacheFile.outputStream().use { output -> input.copyTo(output) }
-        } ?: throw IOException("Cannot open document")
-
+        val cacheFile = File.createTempFile("import_doc", ".pdf", context.cacheDir)
         try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                cacheFile.outputStream().use { output -> input.copyTo(output) }
+            } ?: throw IOException("Cannot open document")
+
             ParcelFileDescriptor.open(cacheFile, ParcelFileDescriptor.MODE_READ_ONLY).use { pfd ->
                 PdfRenderer(pfd).use { renderer ->
                     val pageCount = minOf(renderer.pageCount, MAX_PAGES)
@@ -37,11 +37,13 @@ class PdfTextExtractor @Inject constructor(
                                 page.height * RENDER_SCALE,
                                 Bitmap.Config.ARGB_8888
                             )
-                            bitmap.eraseColor(Color.WHITE)
-                            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                            val text = ocrService.extractText(bitmap)
-                            bitmap.recycle()
-                            text
+                            try {
+                                bitmap.eraseColor(Color.WHITE)
+                                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                ocrService.extractText(bitmap)
+                            } finally {
+                                bitmap.recycle()
+                            }
                         }
                     }
                 }
