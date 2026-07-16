@@ -19,7 +19,8 @@ projection needs, and let the user confirm-and-correct them before they merge in
 **In (v1):**
 - Salary slips → `IncomeStream` (employer label, monthly net pay)
 - Loan statements / sanction letters → `Liability` (lender name, EMI, annual interest
-  rate %, outstanding principal, remaining tenure months)
+  rate %; sanction details — original principal, EMI start date, original tenure — when
+  present, else outstanding principal + remaining tenure as fallback)
 - Confirm-and-correct review screen; nothing is ever auto-applied
 
 **Out (v1.1+):** tax documents (ITR / Form 16 / 26AS), bank-statement expense mining,
@@ -89,12 +90,21 @@ No new dependencies. No DB migration (`FireModel` is a GSON blob; `IncomeStream`
 | Doc type | Extracted | Maps to |
 |---|---|---|
 | Salary slip | employer, net pay (monthly) | `IncomeStream(owner="Self", label=employer, monthlyNet=netPay, effectiveFrom=today)` |
-| Loan statement | lender, EMI, annual rate %, outstanding principal, remaining tenure (months) | `Liability(name=lender, principalAtEmiStart=outstanding, annualRatePct=rate, tenureMonths=remaining, emiStartDate=today)` |
+| Loan statement | lender, EMI, annual rate %, **sanction details when present** (original/sanctioned principal, EMI start or first-disbursement date, original tenure months); otherwise outstanding principal + remaining tenure | See loan mapping rule below |
 
-> **Stated approximation:** loan statements report *today's* outstanding balance, but
-> `Liability` models a loan from its EMI start. V1 maps `principalAtEmiStart = current
-> outstanding`, `emiStartDate = today` — the engine amortizes forward from now, which is
-> correct for a forward-looking projection (the past doesn't affect the simulation).
+**Loan mapping rule (sanction-first):**
+1. **Sanction details present** (sanctioned principal + EMI start date + original tenure —
+   common on sanction letters and the first page of loan statements):
+   `Liability(name=lender, principalAtEmiStart=sanctionedPrincipal, annualRatePct=rate,
+   tenureMonths=originalTenure, emiStartDate=parsedStartDate)`. This is exact — the
+   engine's declining-balance amortization then derives today's outstanding itself.
+2. **Fallback (only outstanding + remaining tenure found):** `principalAtEmiStart =
+   current outstanding`, `tenureMonths = remaining`, `emiStartDate = today`. Correct for
+   a forward-looking projection; the review screen labels it "estimated from current
+   balance" so the user knows which mode applied.
+
+The parser extracts **both** field sets when available; the mapping prefers sanction
+details. All fields are editable on the review screen either way.
 
 ## 6. Error handling
 
