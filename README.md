@@ -18,8 +18,13 @@ engine does the math.
   an honest "reframe" when the target isn't reachable on time.
 - **Intelligence hub** (Sources) — SMS, email, and receipt parsing staged as pending
   expenses for one-tap review, deduplicated on ingest.
-- **FIRE-days impact** — model a one-time purchase and see how many days it pushes back
-  your FIRE date.
+- **FIRE-days impact** — every expense carries a chip showing how many days it pushed
+  back your FIRE date.
+- **"Should I Buy This?"** — enter a purchase amount and get a verdict in FIRE days,
+  the shifted FIRE date, and what the money would grow to if invested instead.
+- **Scenario toggles** — what-if overlays (RSU vesting lumpsum, business income) with
+  amounts set in Settings, togglable live on the Projections tab; the whole app
+  (chips, projections, purchase verdicts) respects the toggles.
 - **Privacy first** — local-only Room database, biometric vault lock, encrypted
   preferences, and on-device inference.
 
@@ -36,6 +41,11 @@ configurable horizon (default 360 months):
 - **Outputs** — FIRE date, full trajectory, auto-derived phases, net-worth breakdown
   (liquid corpus + non-corpus assets + property − loans), and reframe options
   (extend the date / lower the target / add income).
+- **Scenarios** — enabled what-if overlays (one-time inflows, extra monthly income)
+  are resolved inside `project()`, so every consumer inherits them.
+- **Purchase decisions** — `purchaseDecision()` prices a one-time spend in FIRE days
+  plus its future value at the FIRE date; flags purchases that push FIRE beyond the
+  simulation horizon.
 
 Core math lives in `FireMath.kt`; simulation in `FireEngine.kt`; domain types in
 `FireModel.kt` / `FireResult.kt`. The engine has regression tests, including a
@@ -62,7 +72,10 @@ Five bottom-nav tabs plus Settings:
 | Log | History | Transaction history |
 | Projections | Insights | Engine output & trajectory |
 | Intelligence | Sources | SMS/email/receipt staging & review |
-| Settings | FireModel | Edit FIRE profile & assumptions |
+| Settings | FireModel | Edit FIRE profile, assumptions & scenario amounts |
+
+"Should I Buy This?" is a pushed route reachable from the War Room quick actions and
+the Projections card (not a sixth tab).
 
 ## Project Structure
 
