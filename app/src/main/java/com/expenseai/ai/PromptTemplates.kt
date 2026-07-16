@@ -80,4 +80,20 @@ object PromptTemplates {
         append("\n<end_of_turn>\n")
         append("<start_of_turn>model\n")
     }
+
+    fun documentParsingPrompt(documentText: String): String = buildString {
+        append("<start_of_turn>system\n")
+        append("You are a financial document parser for Indian salary slips and loan statements.\n")
+        append("Always respond with valid JSON only, no other text.\n")
+        append("<end_of_turn>\n")
+        append("<start_of_turn>user\n")
+        append("Parse this document. Use null for anything not present. Amounts are plain numbers (no commas).\n\n")
+        append("Document text:\n")
+        append(documentText)
+        append("\n\n")
+        append("Respond ONLY with JSON in this exact format:\n")
+        append("""{"docType":"salary|loan|unknown","employer":null,"monthlyNet":null,"lender":null,"emi":null,"annualRatePct":null,"sanctionedPrincipal":null,"emiStartDate":"YYYY-MM-DD or null","originalTenureMonths":null,"outstandingPrincipal":null,"remainingTenureMonths":null}""")
+        append("\n<end_of_turn>\n")
+        append("<start_of_turn>model\n")
+    }
 }

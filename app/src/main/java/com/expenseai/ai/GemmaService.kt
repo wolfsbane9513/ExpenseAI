@@ -27,6 +27,20 @@ data class ParsedTransaction(
     val items: List<String> = emptyList()
 )
 
+data class ParsedDocument(
+    val docType: String = "",
+    val employer: String? = null,
+    val monthlyNet: Double? = null,
+    val lender: String? = null,
+    val emi: Double? = null,
+    val annualRatePct: Double? = null,
+    val sanctionedPrincipal: Double? = null,
+    val emiStartDate: String? = null,
+    val originalTenureMonths: Int? = null,
+    val outstandingPrincipal: Double? = null,
+    val remainingTenureMonths: Int? = null
+)
+
 @Singleton
 class GemmaService @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -139,6 +153,23 @@ class GemmaService @Inject constructor(
                 parseTransactionResponse(response)
             } catch (_: Exception) {
                 fallbackParseTransaction(sanitized)
+            }
+        }
+    }
+
+    suspend fun parseDocument(documentText: String): ParsedDocument {
+        val sanitized = InputSanitizer.sanitizeDocumentText(documentText).take(6000)
+        if (!isInitialized) return ParsedDocument()
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val prompt = PromptTemplates.documentParsingPrompt(sanitized)
+                val response = runInference(prompt)
+                val cleaned = response.trim()
+                    .removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+                gson.fromJson(cleaned, ParsedDocument::class.java) ?: ParsedDocument()
+            } catch (_: Exception) {
+                ParsedDocument()
             }
         }
     }

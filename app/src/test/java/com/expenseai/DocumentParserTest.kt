@@ -2,13 +2,14 @@ package com.expenseai
 
 import com.expenseai.ai.DocType
 import com.expenseai.ai.DocumentParser
+import io.mockk.mockk
 import org.junit.Assert.*
 import org.junit.Test
 import java.time.LocalDate
 
 class DocumentParserTest {
 
-    private val parser = DocumentParser()
+    private val parser = DocumentParser(mockk(relaxed = true))
 
     private val salarySlipText = """
         TransmuteLabs Private Limited

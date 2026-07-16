@@ -31,7 +31,7 @@ data class DocumentExtraction(
 )
 
 @Singleton
-class DocumentParser @Inject constructor() {
+class DocumentParser @Inject constructor(private val gemmaService: GemmaService) {
 
     fun classify(text: String): DocType {
         val lower = text.lowercase()
@@ -97,6 +97,46 @@ class DocumentParser @Inject constructor() {
             .find(text) ?: return null
         val n = m.groupValues[1].toIntOrNull() ?: return null
         return if (m.groupValues[2].startsWith("year", ignoreCase = true)) n * 12 else n
+    }
+
+    suspend fun parse(text: String, type: DocType): DocumentExtraction {
+        val preview = text.take(1200)
+        if (type == DocType.UNKNOWN) return DocumentExtraction(DocType.UNKNOWN, textPreview = preview)
+
+        val ai = gemmaService.parseDocument(text)
+        return when (type) {
+            DocType.SALARY_SLIP -> {
+                val regex = extractSalary(text)
+                DocumentExtraction(
+                    type = type,
+                    salary = SalaryFields(
+                        employer = ai.employer ?: regex.employer,
+                        monthlyNet = ai.monthlyNet ?: regex.monthlyNet
+                    ),
+                    textPreview = preview
+                )
+            }
+            DocType.LOAN_STATEMENT -> {
+                val regex = extractLoan(text)
+                DocumentExtraction(
+                    type = type,
+                    loan = LoanFields(
+                        lender = ai.lender ?: regex.lender,
+                        emi = ai.emi ?: regex.emi,
+                        annualRatePct = ai.annualRatePct ?: regex.annualRatePct,
+                        sanctionedPrincipal = ai.sanctionedPrincipal ?: regex.sanctionedPrincipal,
+                        emiStartDate = ai.emiStartDate
+                            ?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() }
+                            ?: regex.emiStartDate,
+                        originalTenureMonths = ai.originalTenureMonths ?: regex.originalTenureMonths,
+                        outstandingPrincipal = ai.outstandingPrincipal ?: regex.outstandingPrincipal,
+                        remainingTenureMonths = ai.remainingTenureMonths ?: regex.remainingTenureMonths
+                    ),
+                    textPreview = preview
+                )
+            }
+            DocType.UNKNOWN -> DocumentExtraction(DocType.UNKNOWN, textPreview = preview)
+        }
     }
 
     companion object {
