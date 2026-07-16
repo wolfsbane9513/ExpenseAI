@@ -54,4 +54,17 @@ class PurchaseDecisionTest {
             engine.fireDaysImpact(model(), amount, start)
         )
     }
+
+    @Test
+    fun `purchase that pushes fire date beyond horizon yields null newFireDate`() {
+        // model()'s base FIRE date is reached well within the 360-month horizon
+        // (the "large purchase" test above confirms both base and new dates are
+        // non-null for a 10L purchase). A purchase 10x the target corpus drives
+        // the corpus deeply negative at the outset, so it never recovers to the
+        // target within the simulated horizon.
+        val hugeAmount = 10 * 1_00_00_000.0
+        val d = engine.purchaseDecision(model(), hugeAmount, start)
+        assertNotNull(d.baseFireDate)
+        assertNull(d.newFireDate)
+    }
 }

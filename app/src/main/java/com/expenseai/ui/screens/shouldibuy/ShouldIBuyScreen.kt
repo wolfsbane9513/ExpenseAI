@@ -74,7 +74,9 @@ fun ShouldIBuyScreen(
 @Composable
 private fun DecisionCard(decision: PurchaseDecision, formatter: NumberFormat) {
     val dateFormat = remember { DateTimeFormatter.ofPattern("MMM yyyy") }
+    val beyondHorizon = decision.baseFireDate != null && decision.newFireDate == null
     val verdict = when {
+        beyondHorizon -> "Major setback. Are you sure?"
         decision.daysDelta <= 7 -> "Barely a blip."
         decision.daysDelta <= 30 -> "Noticeable, but fine if it matters to you."
         decision.daysDelta <= 90 -> "Significant. Sleep on it."
@@ -85,16 +87,25 @@ private fun DecisionCard(decision: PurchaseDecision, formatter: NumberFormat) {
             modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                "+${decision.daysDelta} FIRE days",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.ExtraBold,
-                color = if (decision.daysDelta > 90) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.primary
-                }
-            )
+            if (beyondHorizon) {
+                Text(
+                    "Pushes FIRE beyond the horizon",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.error
+                )
+            } else {
+                Text(
+                    "+${decision.daysDelta} FIRE days",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (decision.daysDelta > 90) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
+                )
+            }
             Text(verdict, style = MaterialTheme.typography.titleMedium)
             HorizontalDivider()
             decision.baseFireDate?.let { base ->

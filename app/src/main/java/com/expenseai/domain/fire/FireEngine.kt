@@ -90,7 +90,8 @@ class FireEngine(private val horizonMonths: Int = 360) {
             .map { OneTimeEvent(it.label, it.amount, it.startDate ?: start, EventDirection.INFLOW) }
         return model.copy(
             incomes = model.incomes + extraIncomes,
-            oneTimeEvents = model.oneTimeEvents + extraEvents
+            oneTimeEvents = model.oneTimeEvents + extraEvents,
+            scenarios = emptyList()
         )
     }
 
@@ -191,7 +192,10 @@ class FireEngine(private val horizonMonths: Int = 360) {
 
     /** Full purchase-decision readout for the Should-I-Buy screen (Spec 1.5). */
     fun purchaseDecision(model: FireModel, amount: Double, atDate: LocalDate): PurchaseDecision {
-        if (amount <= 0.0) return PurchaseDecision(0L, project(model).fireDate, project(model).fireDate, 0.0)
+        if (amount <= 0.0) {
+            val baseFireDate = project(model).fireDate
+            return PurchaseDecision(0L, baseFireDate, baseFireDate, 0.0)
+        }
         val base = project(model)
         val withSpend = model.copy(
             oneTimeEvents = model.oneTimeEvents + OneTimeEvent(
