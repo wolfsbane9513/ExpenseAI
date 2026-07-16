@@ -12,6 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.YearMonth
 import javax.inject.Inject
 
@@ -34,6 +36,7 @@ class InsightsViewModel @Inject constructor(
     private val _currentMonth = MutableStateFlow(YearMonth.now())
     private val _aiInsights = MutableStateFlow("")
     private val _isLoadingInsights = MutableStateFlow(false)
+    private val toggleMutex = Mutex()
 
     val uiState: StateFlow<InsightsUiState> = combine(
         _currentMonth,
@@ -107,12 +110,14 @@ class InsightsViewModel @Inject constructor(
 
     fun toggleScenario(id: String) {
         viewModelScope.launch {
-            val model = fireRepository.getFireModel().first()
-            fireRepository.saveFireModel(
-                model.copy(scenarios = model.scenarios.map {
-                    if (it.id == id) it.copy(enabled = !it.enabled) else it
-                })
-            )
+            toggleMutex.withLock {
+                val model = fireRepository.getFireModel().first()
+                fireRepository.saveFireModel(
+                    model.copy(scenarios = model.scenarios.map {
+                        if (it.id == id) it.copy(enabled = !it.enabled) else it
+                    })
+                )
+            }
         }
     }
 }
