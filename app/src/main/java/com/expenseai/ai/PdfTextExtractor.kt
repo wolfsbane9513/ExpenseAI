@@ -32,9 +32,13 @@ class PdfTextExtractor @Inject constructor(
                     val pageCount = minOf(renderer.pageCount, MAX_PAGES)
                     (0 until pageCount).map { index ->
                         renderer.openPage(index).use { page ->
+                            val scale = minOf(
+                                RENDER_SCALE.toFloat(),
+                                MAX_BITMAP_EDGE.toFloat() / maxOf(page.width, page.height)
+                            )
                             val bitmap = Bitmap.createBitmap(
-                                page.width * RENDER_SCALE,
-                                page.height * RENDER_SCALE,
+                                (page.width * scale).toInt().coerceAtLeast(1),
+                                (page.height * scale).toInt().coerceAtLeast(1),
                                 Bitmap.Config.ARGB_8888
                             )
                             try {
@@ -56,5 +60,6 @@ class PdfTextExtractor @Inject constructor(
     companion object {
         const val MAX_PAGES = 10
         private const val RENDER_SCALE = 2
+        private const val MAX_BITMAP_EDGE = 4096
     }
 }

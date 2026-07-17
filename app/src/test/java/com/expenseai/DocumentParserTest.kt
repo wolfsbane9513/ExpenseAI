@@ -83,6 +83,7 @@ class DocumentParserTest {
         val fields = parser.extractLoan(loanOutstandingOnlyText)
         assertNull(fields.sanctionedPrincipal)
         assertNull(fields.emiStartDate)
+        assertNull(fields.originalTenureMonths)
         assertEquals(1240000.0, fields.outstandingPrincipal!!, 0.01)
         assertEquals(62, fields.remainingTenureMonths)
         assertEquals(25000.0, fields.emi!!, 0.01)

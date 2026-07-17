@@ -82,36 +82,40 @@ class DocumentReviewViewModel @Inject constructor(
         _uiState.update { it.copy(isSaving = true) }
         val s = _uiState.value
         viewModelScope.launch {
-            val model = fireRepository.getFireModel().first()
-            val updated = when (s.type) {
-                DocType.SALARY_SLIP -> model.copy(
-                    incomes = model.incomes + SalaryFields(
-                        employer = s.employer,
-                        monthlyNet = s.monthlyNet.toDoubleOrNull()
-                    ).toIncomeStream()
-                )
-                DocType.LOAN_STATEMENT -> {
-                    val sanction = s.emiStartDate != null
-                    model.copy(
-                        liabilities = model.liabilities + LoanFields(
-                            lender = s.lender,
-                            emi = s.emi.toDoubleOrNull(),
-                            annualRatePct = s.annualRatePct.toDoubleOrNull(),
-                            sanctionedPrincipal = if (sanction) s.principal.toDoubleOrNull() else null,
-                            emiStartDate = s.emiStartDate,
-                            originalTenureMonths = if (sanction) s.tenureMonths.toIntOrNull() else null,
-                            outstandingPrincipal = if (!sanction) s.principal.toDoubleOrNull() else null,
-                            remainingTenureMonths = if (!sanction) s.tenureMonths.toIntOrNull() else null
-                        ).toLiability()
+            try {
+                val model = fireRepository.getFireModel().first()
+                val updated = when (s.type) {
+                    DocType.SALARY_SLIP -> model.copy(
+                        incomes = model.incomes + SalaryFields(
+                            employer = s.employer,
+                            monthlyNet = s.monthlyNet.toDoubleOrNull()
+                        ).toIncomeStream()
                     )
+                    DocType.LOAN_STATEMENT -> {
+                        val sanction = s.emiStartDate != null
+                        model.copy(
+                            liabilities = model.liabilities + LoanFields(
+                                lender = s.lender,
+                                emi = s.emi.toDoubleOrNull(),
+                                annualRatePct = s.annualRatePct.toDoubleOrNull(),
+                                sanctionedPrincipal = if (sanction) s.principal.toDoubleOrNull() else null,
+                                emiStartDate = s.emiStartDate,
+                                originalTenureMonths = if (sanction) s.tenureMonths.toIntOrNull() else null,
+                                outstandingPrincipal = if (!sanction) s.principal.toDoubleOrNull() else null,
+                                remainingTenureMonths = if (!sanction) s.tenureMonths.toIntOrNull() else null
+                            ).toLiability()
+                        )
+                    }
+                    DocType.UNKNOWN -> model
                 }
-                DocType.UNKNOWN -> model
+                if (updated !== model) {
+                    fireRepository.saveFireModel(updated)
+                }
+                holder.clear()
+                _uiState.update { it.copy(isSaved = true) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isSaving = false) }
             }
-            if (updated !== model) {
-                fireRepository.saveFireModel(updated)
-            }
-            holder.clear()
-            _uiState.update { it.copy(isSaved = true) }
         }
     }
 
