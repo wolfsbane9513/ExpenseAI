@@ -26,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,10 +37,13 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -61,6 +65,18 @@ fun SourcesScreen(
 ) {
     val pendingCount by viewModel.pendingCount.collectAsStateWithLifecycle()
     var showReviewSheet by remember { mutableStateOf(false) }
+
+    val importState by viewModel.importState.collectAsStateWithLifecycle()
+    val documentPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri -> uri?.let(viewModel::importDocument) }
+
+    LaunchedEffect(importState) {
+        if (importState is SourcesViewModel.ImportState.Ready) {
+            viewModel.resetImportState()
+            onReviewExtraction()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -115,6 +131,39 @@ fun SourcesScreen(
                         letterSpacing = 1.sp
                     )
                 }
+            }
+
+            Button(
+                onClick = { documentPicker.launch(arrayOf("application/pdf")) },
+                enabled = importState !is SourcesViewModel.ImportState.Loading,
+                modifier = Modifier.fillMaxWidth(),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+            ) {
+                if (importState is SourcesViewModel.ImportState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("READING DOCUMENT…", fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.UploadFile,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("IMPORT DOCUMENT (PDF)", fontWeight = FontWeight.Black, letterSpacing = 1.sp)
+                }
+            }
+
+            (importState as? SourcesViewModel.ImportState.Error)?.let { error ->
+                Text(
+                    text = error.message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
 
             SourceCard(

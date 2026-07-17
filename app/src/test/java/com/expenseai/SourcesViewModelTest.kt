@@ -2,6 +2,8 @@ package com.expenseai
 
 import app.cash.turbine.test
 import com.expenseai.data.local.PendingExpenseDao
+import com.expenseai.domain.usecase.ExtractDocumentUseCase
+import com.expenseai.ui.screens.docimport.ExtractionResultHolder
 import com.expenseai.ui.screens.sources.SourcesViewModel
 import io.mockk.every
 import io.mockk.mockk
@@ -22,14 +24,18 @@ class SourcesViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var pendingDao: PendingExpenseDao
+    private lateinit var extractDocumentUseCase: ExtractDocumentUseCase
+    private lateinit var extractionResultHolder: ExtractionResultHolder
     private lateinit var viewModel: SourcesViewModel
     private val countFlow = MutableStateFlow(0)
 
     @Before fun setup() {
         Dispatchers.setMain(testDispatcher)
         pendingDao = mockk()
+        extractDocumentUseCase = mockk()
+        extractionResultHolder = mockk()
         every { pendingDao.getCount() } returns countFlow
-        viewModel = SourcesViewModel(pendingDao)
+        viewModel = SourcesViewModel(pendingDao, extractDocumentUseCase, extractionResultHolder)
     }
 
     @After fun teardown() { Dispatchers.resetMain() }
