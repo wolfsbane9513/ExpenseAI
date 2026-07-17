@@ -94,7 +94,7 @@ fun DocumentReviewScreen(
                     )
                 }
                 DocType.LOAN_STATEMENT -> {
-                    if (uiState.estimatedFromCurrentBalance) {
+                    if (uiState.emiStartDate == null) {
                         Text(
                             "Estimated from current balance — sanction details weren't found, " +
                                 "so the loan is modelled from today's outstanding amount.",
@@ -156,7 +156,7 @@ fun DocumentReviewScreen(
 
             Button(
                 onClick = viewModel::confirm,
-                enabled = viewModel.canConfirm,
+                enabled = viewModel.canConfirm && !uiState.isSaving,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large
             ) {

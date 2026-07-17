@@ -32,7 +32,7 @@ data class DocReviewUiState(
     val principal: String = "",
     val tenureMonths: String = "",
     val emiStartDate: LocalDate? = null,
-    val estimatedFromCurrentBalance: Boolean = false,
+    val isSaving: Boolean = false,
     val isSaved: Boolean = false,
     val hasExtraction: Boolean = false
 )
@@ -63,7 +63,6 @@ class DocumentReviewViewModel @Inject constructor(
                 tenureMonths = (if (sanction) loan?.originalTenureMonths else loan?.remainingTenureMonths)
                     ?.toString().orEmpty(),
                 emiStartDate = if (sanction) loan?.emiStartDate else null,
-                estimatedFromCurrentBalance = extraction.type == DocType.LOAN_STATEMENT && !sanction,
                 hasExtraction = true
             )
         }
@@ -79,6 +78,8 @@ class DocumentReviewViewModel @Inject constructor(
     fun updateTenure(v: String) = _uiState.update { it.copy(tenureMonths = v.filter(Char::isDigit)) }
 
     fun confirm() {
+        if (_uiState.value.isSaving) return
+        _uiState.update { it.copy(isSaving = true) }
         val s = _uiState.value
         viewModelScope.launch {
             val model = fireRepository.getFireModel().first()
