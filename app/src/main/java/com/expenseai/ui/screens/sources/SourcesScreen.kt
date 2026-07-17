@@ -55,7 +55,10 @@ import com.expenseai.ui.screens.review.PendingReviewSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SourcesScreen(viewModel: SourcesViewModel = hiltViewModel()) {
+fun SourcesScreen(
+    onReviewExtraction: () -> Unit = {},
+    viewModel: SourcesViewModel = hiltViewModel()
+) {
     val pendingCount by viewModel.pendingCount.collectAsStateWithLifecycle()
     var showReviewSheet by remember { mutableStateOf(false) }
 

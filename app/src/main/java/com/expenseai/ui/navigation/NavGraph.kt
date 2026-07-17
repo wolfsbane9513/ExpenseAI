@@ -3,6 +3,7 @@ package com.expenseai.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.expenseai.ui.screens.dashboard.DashboardContent
 import com.expenseai.ui.screens.dashboard.DashboardUiState
+import com.expenseai.ui.screens.docimport.DocumentReviewScreen
 import com.expenseai.ui.screens.firemodel.FireModelScreen
 import com.expenseai.ui.screens.history.HistoryScreen
 import com.expenseai.ui.screens.insights.InsightsScreen
@@ -42,6 +44,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     data object Sources   : Screen("sources",   "Intelligence", Icons.Default.AutoAwesome)
     data object FireModel : Screen("fire_model", "Settings",  Icons.Default.Settings)
     data object ShouldIBuy : Screen("should_i_buy", "Should I Buy?", Icons.Default.ShoppingBag)
+    data object DocReview : Screen("doc_review", "Review", Icons.Default.Description)
 }
 
 val bottomNavItems = listOf(
@@ -142,9 +145,11 @@ fun ExpenseNavHost(
                     onShouldIBuyClick = { navController.navigate(Screen.ShouldIBuy.route) }
                 )
             }
-            composable(Screen.Sources.route) { 
+            composable(Screen.Sources.route) {
                 if (!isShowingPreview) {
-                    SourcesScreen() 
+                    SourcesScreen(
+                        onReviewExtraction = { navController.navigate(Screen.DocReview.route) }
+                    )
                 } else {
                     // Placeholder for Sources Preview if needed
                     Text("Sources Screen Preview")
@@ -155,6 +160,9 @@ fun ExpenseNavHost(
             }
             composable(Screen.ShouldIBuy.route) {
                 ShouldIBuyScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.DocReview.route) {
+                DocumentReviewScreen(onDone = { navController.popBackStack() })
             }
         }
     }
