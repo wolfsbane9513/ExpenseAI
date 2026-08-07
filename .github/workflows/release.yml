@@ -57,7 +57,7 @@ jobs:
             app/build/outputs/bundle/release/*.aab
 
       - name: Upload ProGuard mapping
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: proguard-mapping
           path: app/build/outputs/mapping/release/mapping.txt
